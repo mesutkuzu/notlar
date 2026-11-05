@@ -3,7 +3,7 @@
    GitHub Pages build'ini beklemeden içerik değişikliklerini gösterir.
    ========================================================================== */
 
-const OWNER = 'MESUT420';
+const OWNER = 'mesutkuzu';
 const REPO = 'notlar';
 const BRANCH = 'main';
 const RAW_BASE = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}`;

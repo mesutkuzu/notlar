@@ -2,8 +2,8 @@
 
 Sade, tek sayfalık kişisel yazı arşivi. GitHub Pages üzerinde çalışır; yazılar `data/posts.json` içinde tutulur.
 
-- Site: https://mesut420.github.io/notlar/
-- Yazma alanı: https://mesut420.github.io/notlar/studio/
+- Site: https://mesutkuzu.github.io/notlar/
+- Yazma alanı: https://mesutkuzu.github.io/notlar/studio/
 
 Yazma alanı ana sayfadan linklenmez ve yalnızca GitHub erişim anahtarıyla açılır.
 
@@ -65,7 +65,7 @@ assets/js/github.js     GitHub Contents API
 
 ## GitHub Pages
 
-Repo public olmalıdır (ücretsiz plan). Pages kaynağı `main` dalının kök dizinidir. Yeni commit'ler otomatik olarak yayınlanır.
+Repo public. Pages kaynağı **GitHub Actions** (`main`). `.github/workflows/pages.yml` yalnızca kod değişikliklerinde çalışır; `data/**` commit'leri deploy tetiklemez. Site yazıları zaten GitHub raw üzerinden canlı okuduğu için içerik değişiklikleri anında görünür.
 
 ## Not
 
