@@ -1,13 +1,4 @@
 {
   "version": 2,
-  "posts": [
-    {
-      "id": "baslamak-uzerine",
-      "date": "2026-11-05",
-      "title": "Başlamak üzerine",
-      "content": "Bugün kendime bir yer açtım.\n\nKâğıt kokusu yerine ekran ışığı var belki, ama niyet aynı: günü kaybetmeden önce ona bir cümle bırakmak. Her şeyi anlatmak zorunda değilim. Bazen tek bir ayrıntı yeter — pencere kenarında duran bardak, henüz bitmemiş bir cümle, akşamüstü gelen o garip huzur.\n\nBurada kural basit: **yazmak için doğru anı beklememek.** Uzun olması gerekmiyor. Güzel olması da. Sadece olması yeterli.\n\n> Yazmak, geçen günü geri çağırmanın en sessiz yolu.\n\nBurası ilk sayfa. Gerisini zaman yazacak.",
-      "createdAt": "2026-11-05T19:41:00.000Z",
-      "updatedAt": "2026-11-05T19:41:00.000Z"
-    }
-  ]
+  "posts": []
 }
