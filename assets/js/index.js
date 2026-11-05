@@ -44,7 +44,36 @@ function init() {
   cacheDom();
   initFilters();
   initShortcuts();
+  initRefresh();
   loadData();
+}
+
+function initRefresh() {
+  let hiddenAt = 0;
+  let refreshing = false;
+
+  const refresh = async () => {
+    if (refreshing) return;
+    refreshing = true;
+    try {
+      await loadData();
+    } finally {
+      refreshing = false;
+    }
+  };
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      hiddenAt = Date.now();
+      return;
+    }
+    if (hiddenAt && Date.now() - hiddenAt > 1500) refresh();
+    hiddenAt = 0;
+  });
+
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) refresh();
+  });
 }
 
 /* --------------------------------------------------------------------------
