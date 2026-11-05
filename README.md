@@ -27,7 +27,7 @@ Anahtar yalnızca tarayıcının `localStorage` alanında tutulur; repoya veya s
 ## Kullanım
 
 - **Yeni yazı:** Studio → “+ Yeni yazı”. Başlık, tarih ve metni gir.
-- **Yayınla:** Sağ üstteki “Yayınla”. GitHub'a commit atılır; GitHub Pages genelde 1–2 dakika içinde güncellenir.
+- **Yayınla:** Sağ üstteki “Yayınla”. GitHub'a commit atılır; siteyi yenilediğinde görünür.
 - **Sil:** Editörün sağ üstündeki “Sil”.
 - **Site adı / yazar:** Studio → “Ayarlar”.
 - **Taslaklar:** Yazarken cihazda otomatik saklanır. Yayınlanana kadar repoya gitmez.
