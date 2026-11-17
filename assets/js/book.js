@@ -345,8 +345,7 @@ function buildPages() {
   measure.className = 'book-measure';
   document.body.appendChild(measure);
 
-  const pages = [];
-
+  const pages = [makePage('toc', '')];
   const entries = [];
 
   state.posts.forEach((post, index) => {
@@ -356,8 +355,7 @@ function buildPages() {
     entries.push({ post, index: startIndex });
   });
 
-  // Open on the writing. A collected index belongs at the back.
-  if (entries.length > 1) pages.push(makePage('toc', tocHTML(entries)));
+  pages[0] = makePage('toc', tocHTML(entries));
 
   if (pages.length % 2 === 0) {
     pages.push(makePage('blank', '<span class="blank-mark" aria-hidden="true"></span>'));

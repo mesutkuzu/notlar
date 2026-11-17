@@ -75,4 +75,4 @@ Repo public. Pages kaynağı **GitHub Actions** (`main`). `.github/workflows/pag
 
 ## Not
 
-`data/posts.json` yayınlanan yazıları içerir. Studio üzerinden düzenlenebilir. Kitap doğrudan ilk yazıyla açılır. Site herkese açıktır.
+`data/posts.json` yayınlanan yazıları içerir. Studio üzerinden düzenlenebilir. Kitap içindekilerle açılır; yazı listesi ve sayfa numaraları yeni yazılarla otomatik güncellenir. Site herkese açıktır.

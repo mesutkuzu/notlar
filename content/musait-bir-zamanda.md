@@ -22,4 +22,4 @@ Hayatın amacı dediğimiz şeyin tek cümlelik, herkese uyacak bir cevabı var 
 
 Bugün kendime “Ben ne istiyorum?” diye sorsam, vereceğim cevabın ne kadar basit olabileceği de aklıma geliyor. Biraz daha az endişelenmek. Birinin yanında saate bakmadan oturabilmek. Sevdiğim bir şeyi yaparken bundan ne kazanacağımı hesaplamamak. Belki önce bunları ciddiye almam gerekiyor. Büyük bir amaç bulamadım diye, günlerimin nasıl geçtiği önemsizleşmiyor.
 
-Yazıyı bitirince yine dönmem gereken işler var. İçlerinden bazıları gerçekten bekleyemez. Ama uzun zamandır aramak istediğim biri de var. Onun da hep bekleyebileceğini nereden çıkardım?
+Neden yaşıyoruz? Bu hayattaki amacımız ne?
