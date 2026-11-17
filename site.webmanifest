@@ -1,13 +1,13 @@
 {
-  "name": "Notlar",
-  "short_name": "Notlar",
-  "description": "Notlar",
+  "name": "Kanca'nın Ucundakiler",
+  "short_name": "Kanca",
+  "description": "Sıkılınca yazarım..",
   "lang": "tr",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f7f8fa",
-  "theme_color": "#2f5be8",
+  "background_color": "#0d0f0e",
+  "theme_color": "#0d0f0e",
   "icons": [
     {
       "src": "assets/img/icon.svg",

@@ -316,6 +316,20 @@
   animation: fade-up 0.5s var(--ease) both;
 }
 
+.post-cover {
+  margin: 0 0 22px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-2);
+}
+
+.post-cover img {
+  width: 100%;
+  max-height: 360px;
+  object-fit: cover;
+}
+
 .post-pill {
   display: inline-flex;
   align-items: center;

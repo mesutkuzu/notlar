@@ -6,10 +6,11 @@ import {
   formatLong,
   normalizePosts,
   postTitle,
-  plainText
-} from './core.js';
-import { loadPosts, loadSite } from './data.js';
-import { renderMarkdown } from './markdown.js';
+  plainText,
+  safeImageUrl
+} from './core.js?v=20261117k';
+import { loadPosts, loadSite } from './data.js?v=20261117k';
+import { renderMarkdown } from './markdown.js?v=20261117k';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 
@@ -33,6 +34,9 @@ function cacheDom() {
   dom.content = $('#post-content');
   dom.status = $('#post-status');
   dom.progress = $('#reading-progress-bar');
+  dom.cover = $('#post-cover');
+  dom.coverImage = $('#post-cover-img');
+  dom.bookLink = $('#book-link');
 }
 
 function init() {
@@ -131,9 +135,6 @@ async function loadPost() {
 function applySite() {
   const site = state.site;
   const title = site.title || DEFAULT_SITE.title;
-  const lower = title.toLocaleLowerCase('tr');
-  const brandText = $('.brand-text');
-  if (brandText) brandText.textContent = lower;
   const authorMeta = $('meta[name="author"]');
   if (authorMeta) authorMeta.setAttribute('content', site.author || title);
 }
@@ -143,6 +144,21 @@ function renderPost(post) {
   const description = plainText(post.content).slice(0, 160);
 
   dom.date.textContent = formatLong(post.date);
+  if (dom.bookLink) {
+    dom.bookLink.href = `./?yazi=${encodeURIComponent(post.id)}`;
+  }
+
+  const coverUrl = safeImageUrl(post.cover);
+  if (dom.cover && dom.coverImage) {
+    if (coverUrl) {
+      dom.coverImage.src = coverUrl;
+      dom.cover.hidden = false;
+    } else {
+      dom.coverImage.removeAttribute('src');
+      dom.cover.hidden = true;
+    }
+  }
+
   dom.title.textContent = title;
   dom.content.innerHTML = renderMarkdown(post.content);
   dom.article.hidden = false;

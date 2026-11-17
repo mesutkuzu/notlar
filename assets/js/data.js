@@ -6,6 +6,7 @@
 const OWNER = 'mesutkuzu';
 const REPO = 'notlar';
 const BRANCH = 'main';
+const IS_LOCAL = ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
 const RAW_BASE = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}`;
 
 function withVersion(url) {
@@ -21,6 +22,7 @@ async function requestJSON(url) {
 }
 
 export async function loadPosts() {
+  if (IS_LOCAL) return requestJSON('data/posts.json');
   try {
     return await requestJSON(`${RAW_BASE}/data/posts.json`);
   } catch {
@@ -29,6 +31,7 @@ export async function loadPosts() {
 }
 
 export async function loadSite() {
+  if (IS_LOCAL) return requestJSON('data/site.json');
   try {
     return await requestJSON(`${RAW_BASE}/data/site.json`);
   } catch {

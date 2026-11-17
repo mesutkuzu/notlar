@@ -146,6 +146,16 @@ export function escapeAttr(value) {
   return escapeHTML(value);
 }
 
+/** Yalnızca güvenli görsel adreslerini geçirir. */
+export function safeImageUrl(raw) {
+  const url = String(raw || '').trim();
+  if (!url) return '';
+  if (/^https?:\/\//i.test(url)) return url;
+  if (/^data:image\/(png|jpe?g|gif|webp|avif);/i.test(url)) return url;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(url) || url.startsWith('//')) return '';
+  return url;
+}
+
 /** Arama için Türkçe karakterleri sadeleştirir. */
 export function normalize(value) {
   return String(value ?? '')
@@ -266,6 +276,7 @@ export function normalizePosts(raw) {
       date: item.date,
       title,
       content: String(item.content || ''),
+      cover: String(item.cover || '').trim(),
       createdAt: item.createdAt || `${item.date}T00:00:00.000Z`,
       updatedAt: item.updatedAt || item.createdAt || `${item.date}T00:00:00.000Z`
     };

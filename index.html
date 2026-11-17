@@ -4,21 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://raw.githubusercontent.com; base-uri 'self'; form-action 'self'">
-  <title>Notlar</title>
-  <meta name="description" content="Notlar">
+  <title>Kanca'nın Ucundakiler — Bir yazı defteri</title>
+  <meta name="description" content="Sıkılınca yazarım.. Sürükleyerek okunan, her yazının bir sayfa olduğu kişisel bir defter.">
   <meta name="author" content="Notlar">
-  <meta name="color-scheme" content="light">
-  <meta name="theme-color" content="#f7f8fa">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#251e18">
   <meta name="robots" content="index,follow,max-image-preview:large">
 
   <meta property="og:type" content="website">
   <meta property="og:locale" content="tr_TR">
-  <meta property="og:title" content="Notlar">
-  <meta property="og:description" content="Notlar">
+  <meta property="og:title" content="Kanca'nın Ucundakiler — Bir yazı defteri">
+  <meta property="og:description" content="Sıkılınca yazarım.. Sürükleyerek okunan, her yazının bir sayfa olduğu kişisel bir defter.">
   <meta property="og:image" content="https://mesutkuzu.github.io/notlar/assets/img/og.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Notlar">
-  <meta name="twitter:description" content="Notlar">
+  <meta name="twitter:title" content="Kanca'nın Ucundakiler — Bir yazı defteri">
+  <meta name="twitter:description" content="Sıkılınca yazarım..">
   <meta name="twitter:image" content="https://mesutkuzu.github.io/notlar/assets/img/og.png">
 
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
@@ -27,58 +27,55 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="assets/css/base.css">
-  <link rel="stylesheet" href="assets/css/prose.css">
-  <link rel="stylesheet" href="assets/css/site.css">
-  <script type="module" src="assets/js/index.js"></script>
+  <link rel="stylesheet" href="assets/css/base.css?v=20261117k">
+  <link rel="stylesheet" href="assets/css/book.css?v=20261117m">
+  <script type="module" src="assets/js/book.js?v=20261117m"></script>
 </head>
-<body class="index-body" id="top">
+<body class="book-body" id="top">
 
-  <a class="skip-link" href="#main">Yazılara geç</a>
+  <a class="skip-link" href="#kitap">Kitaba geç</a>
 
-  <div class="page-glow" aria-hidden="true"></div>
+  <div class="scene-grain" aria-hidden="true"></div>
+  <div class="scene-light" aria-hidden="true"></div>
 
-  <svg class="icon-sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
-    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.6"/><path d="m15.8 15.8 4.7 4.7"/></symbol>
-    <symbol id="i-arrow-up-right" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
-  </svg>
-
-  <header class="site-header">
-    <div class="header-inner">
-      <a class="brand" href="./"><span class="brand-text">notlar</span><span class="brand-dot" aria-hidden="true"></span></a>
+  <main class="book-scene" id="kitap">
+    <div class="book-loader" id="book-loader" role="status" aria-label="Kitap açılıyor">
+      <span class="loader-mark" aria-hidden="true">n<span>.</span></span>
     </div>
-  </header>
 
-  <main class="index-main" id="main">
-    <h1 class="sr-only">Notlar</h1>
-
-    <section class="archive" id="yazilar" aria-label="Yazılar">
-      <div class="archive-card">
-        <div class="archive-toolbar">
-          <div class="year-tabs" id="year-tabs" role="group" aria-label="Yıla göre filtrele"></div>
-
-          <label class="archive-search">
-            <svg aria-hidden="true"><use href="#i-search"></use></svg>
-            <span class="sr-only">Yazılarda ara</span>
-            <input id="search-input" type="search" placeholder="Ara" autocomplete="off" spellcheck="false">
-          </label>
-        </div>
-
-        <ol class="post-list" id="post-list" aria-live="polite" aria-busy="true">
-          <li class="list-loading">Yükleniyor…</li>
-        </ol>
-
-        <div class="empty-state" id="empty-state" hidden>
-          <p>Henüz yazı yok.</p>
+    <div class="book-area" id="book-area" hidden>
+      <div class="book-stage">
+        <div class="book-shadow" aria-hidden="true"></div>
+        <div class="book" id="book" role="group" tabindex="0" aria-roledescription="kitap" aria-label="Notlar kitabı">
+          <div class="book-cover" aria-hidden="true"></div>
+          <div class="book-block book-block--left" aria-hidden="true"></div>
+          <div class="book-block book-block--right" aria-hidden="true"></div>
+          <div class="book-block book-block--bottom" aria-hidden="true"></div>
+          <div class="book-base">
+            <div class="base-slot" id="base-left"></div>
+            <div class="base-slot" id="base-right"></div>
+          </div>
+          <div class="book-leaves" id="book-leaves"></div>
+          <div class="book-spine" aria-hidden="true"></div>
+          <div class="book-ribbon" aria-hidden="true"></div>
+          <div class="book-turn-shadow" aria-hidden="true"></div>
         </div>
       </div>
-    </section>
+    </div>
+
+    <div class="book-error" id="book-error" hidden>
+      <p class="eyebrow">Defter açılamadı</p>
+      <p>Yazılar şu an yüklenemedi. Bağlantını kontrol edip yeniden dene.</p>
+      <button class="text-link" type="button" id="retry-load">Yeniden dene</button>
+    </div>
   </main>
 
+  <nav class="sr-only" id="flat-index" aria-label="Tüm yazılar"></nav>
+
   <noscript>
-    <div class="noscript">Yazıları görmek için JavaScript'e ihtiyaç var.</div>
+    <div class="noscript">Kitabı okuyabilmek için JavaScript'e ihtiyaç var.</div>
   </noscript>
 
 </body>

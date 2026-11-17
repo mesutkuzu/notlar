@@ -3,22 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.github.com; base-uri 'self'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.github.com; frame-src 'self'; base-uri 'self'; form-action 'self'">
   <title>Studio — Notlar</title>
   <meta name="description" content="Yazma masası.">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="color-scheme" content="light">
-  <meta name="theme-color" content="#f7f8fa">
+  <meta name="theme-color" content="#0d0f0e">
 
   <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="../assets/css/base.css">
-  <link rel="stylesheet" href="../assets/css/prose.css">
-  <link rel="stylesheet" href="../assets/css/editor.css">
-  <script type="module" src="../assets/js/editor.js"></script>
+  <link rel="stylesheet" href="../assets/css/base.css?v=20261117k">
+  <link rel="stylesheet" href="../assets/css/prose.css?v=20261117k">
+  <link rel="stylesheet" href="../assets/css/editor.css?v=20261117m">
+  <script type="module" src="../assets/js/editor.js?v=20261117m"></script>
 </head>
 <body class="studio-body" id="top">
 
@@ -89,6 +89,7 @@
           </a>
         </details>
 
+        <button class="text-button" id="write-offline" type="button">Bağlanmadan taslak yaz</button>
         <p class="auth-note">Anahtar yalnızca bu cihazın tarayıcısında saklanır; depoya yazılmaz.</p>
         <a class="auth-back" href="../">← Siteye dön</a>
       </div>
@@ -157,6 +158,11 @@
 
           <input id="title-input" class="editor-title" type="text" placeholder="Başlık" autocomplete="off" spellcheck="false">
 
+          <div class="editor-cover-field">
+            <label for="cover-input">Başlık görseli <span>isteğe bağlı</span></label>
+            <input id="cover-input" type="text" inputmode="url" placeholder="https://… veya assets/img/…" autocomplete="off" spellcheck="false">
+          </div>
+
           <div class="editor-toolbar">
             <div class="toolbar-group">
               <button type="button" data-md="bold" title="Kalın" aria-label="Kalın">B</button>
@@ -166,11 +172,14 @@
               <button type="button" data-md="list" title="Liste" aria-label="Liste">•</button>
               <button type="button" data-md="link" title="Bağlantı" aria-label="Bağlantı">↗</button>
             </div>
-            <button class="preview-toggle" type="button" id="preview-toggle">Önizleme</button>
+            <button class="preview-toggle" type="button" id="preview-toggle">Kitapta önizle</button>
           </div>
 
           <textarea id="content-input" class="editor-content" placeholder="Yazmaya başla…" spellcheck="true"></textarea>
-          <div id="preview" class="prose prose--preview editor-preview" hidden></div>
+          <div id="preview" class="editor-preview" hidden>
+            <p class="preview-note">Yayınlanmamış taslak · Sayfaları sürükleyerek çevirebilirsin.</p>
+            <iframe id="book-preview" title="Taslağın kitap önizlemesi" src="../?onizleme=1" loading="lazy"></iframe>
+          </div>
 
           <div class="editor-footer">
             <span id="word-count">0 kelime</span>

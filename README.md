@@ -1,6 +1,6 @@
-# Notlar
+# Kanca'nın Ucundakiler
 
-Sade, tek sayfalık kişisel yazı arşivi. GitHub Pages üzerinde çalışır; yazılar `data/posts.json` içinde tutulur.
+Kişisel bir not defteri. Sade, sürükleyerek okunan 3B bir kitap; GitHub Pages üzerinde çalışır ve notlar `data/posts.json` içinde tutulur. Kapak kapalı açılır; sayfalar sürüklenerek çevrilir. Her not, kendi başlığı ve isteğe bağlı başlık görseliyle kitabın bir sayfası olur.
 
 - Site: https://mesutkuzu.github.io/notlar/
 - Yazma alanı: https://mesutkuzu.github.io/notlar/studio/
@@ -26,15 +26,18 @@ Anahtar yalnızca tarayıcının `localStorage` alanında tutulur; repoya veya s
 
 ## Kullanım
 
+- **Kitap önizlemesi:** “Kitapta önizle” başlığı, görseli ve uzun metnin sayfa bölünmelerini yayınlamadan gösterir.
+- **Bağlanmadan yaz:** Giriş ekranındaki “Bağlanmadan taslak yaz” ile başlayabilirsin. Taslak cihazda saklanır; yayınlama için GitHub bağlantısı gerekir.
 - **Yeni yazı:** Studio → “+ Yeni yazı”. Başlık, tarih ve metni gir.
+- **Başlık görseli:** Üstteki “Başlık görseli” alanına isteğe bağlı olarak bir görsel adresi (`https://…`) veya depo içi yol (`assets/img/…`) yaz. Boş bırakılırsa not görselsiz açılır.
 - **Yayınla:** Sağ üstteki “Yayınla”. GitHub'a commit atılır; siteyi yenilediğinde görünür.
 - **Sil:** Editörün sağ üstündeki “Sil”.
 - **Site adı / yazar:** Studio → “Ayarlar”.
 - **Taslaklar:** Yazarken cihazda otomatik saklanır. Yayınlanana kadar repoya gitmez.
 
-Yazı listesi GitHub'daki güncel `data/posts.json` dosyasından okunur. Yayınlama veya silme sonrası siteyi yenilemen yeterlidir; GitHub Pages build'i beklenmez. (HTML/CSS/JS değişiklikleri için Pages build'i yine gerekir.)
+Kitap kapalı başlar. Kapağa tıkla veya sürükle; açılan kitapta sayfayı tutup sürükleyerek ilerle. Klavyede `←` `→` tuşları da çalışır. Notlar GitHub'daki güncel `data/posts.json` dosyasından okunur. Yayınlama veya silme sonrası siteyi yenilemen yeterlidir; GitHub Pages build'i beklenmez. (HTML/CSS/JS değişiklikleri için Pages build'i yine gerekir.)
 
-Yazılar Markdown destekler: başlık (`##`), kalın, italik, liste, alıntı, bağlantı, görsel ve kod.
+Notlar Markdown destekler: başlık (`##`), kalın, italik, liste, alıntı, bağlantı, görsel ve kod. Uzun notlar sayfalara otomatik bölünür.
 
 ## Yerel geliştirme
 
@@ -49,16 +52,17 @@ python3 -m http.server 8080
 ## Dosyalar
 
 ```text
-index.html              ana sayfa
-post.html               yazı detayı
+index.html              kitap sahnesi
+post.html               tek sayfalık okuma görünümü
 studio/index.html       yazma alanı (ana sayfadan link yok)
-data/posts.json         yazılar
-data/site.json          site adı ve yazar
+data/posts.json         notlar
+data/site.json          site adı, açıklama ve yazar
 assets/css/base.css     renkler, tipografi, ortak parçalar
-assets/css/site.css     okuma arayüzü
+assets/css/book.css     3B kitap, kapak ve sayfa tipografisi
+assets/css/site.css     düz okuma görünümü
 assets/css/editor.css   studio arayüzü
-assets/js/index.js      ana sayfa + arama/filtre
-assets/js/post.js       yazı detayı
+assets/js/book.js       kitap motoru, sayfalama ve sürükleme
+assets/js/post.js       düz okuma görünümü
 assets/js/editor.js     studio
 assets/js/github.js     GitHub Contents API
 ```

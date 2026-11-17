@@ -7,7 +7,7 @@
  * üretilir. Görsel/bağlantı adresleri şemaya göre doğrulanır.
  */
 
-import { escapeHTML, escapeAttr } from './core.js';
+import { escapeHTML, escapeAttr } from './core.js?v=20261117k';
 
 const TOKEN_OPEN = '\uE000';
 const TOKEN_CLOSE = '\uE001';

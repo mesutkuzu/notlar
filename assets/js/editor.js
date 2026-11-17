@@ -13,10 +13,10 @@ import {
   postTitle,
   wordCount,
   escapeHTML,
-  normalize
-} from './core.js';
-import { renderMarkdown, rewriteRelativeAssets } from './markdown.js';
-import { GitHub, githubErrorMessage } from './github.js';
+  normalize,
+  safeImageUrl
+} from './core.js?v=20261117k';
+import { GitHub, githubErrorMessage } from './github.js?v=20261117k';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -77,8 +77,10 @@ function cacheDom() {
   dom.dateInput = $('#date-input');
   dom.editorState = $('#editor-state');
   dom.titleInput = $('#title-input');
+  dom.coverInput = $('#cover-input');
   dom.contentInput = $('#content-input');
   dom.preview = $('#preview');
+  dom.bookPreview = $('#book-preview');
   dom.previewToggle = $('#preview-toggle');
   dom.wordCount = $('#word-count');
   dom.toolbar = $('.editor-toolbar');
@@ -106,6 +108,22 @@ function init() {
   bindEditor();
   bindModals();
   initShortcuts();
+  $('#write-offline').addEventListener('click', async () => {
+    try {
+      const response = await fetch('../data/site.json');
+      if (response.ok) state.site = { ...DEFAULT_SITE, ...await response.json() };
+    } catch { /* Writing a local draft also works offline. */ }
+    state.github = null;
+    showApp();
+    applySiteBrand();
+    renderSidebar();
+    newPost();
+    dom.publishButton.textContent = 'Bağlan ve yayınla';
+  });
+  window.addEventListener('message', (event) => {
+    if (event.origin === location.origin && event.source === dom.bookPreview.contentWindow &&
+        event.data?.type === 'notlar:preview-ready' && state.preview) updatePreview();
+  });
 
   const savedConfig = readConfig();
   prefillAuth(savedConfig);
@@ -166,6 +184,7 @@ function saveDraft() {
     id: state.current.id,
     date: dom.dateInput.value || state.current.date || todayISO(),
     title: dom.titleInput.value,
+    cover: dom.coverInput.value.trim(),
     content: dom.contentInput.value,
     createdAt: state.current.createdAt || null,
     updatedAt: state.current.updatedAt || null
@@ -289,7 +308,15 @@ async function connect(config, silent) {
     applySiteBrand();
     renderSidebar();
 
-    if (!state.posts.length) {
+    dom.publishButton.textContent = 'Yayınla';
+    if (state.pendingPost === 'new') {
+      state.pendingPost = null;
+      newPost();
+    } else if (state.pendingPost && state.posts.some(post => post.id === state.pendingPost)) {
+      const id = state.pendingPost;
+      state.pendingPost = null;
+      selectPost(id);
+    } else if (!state.posts.length) {
       newPost();
     } else {
       selectPost(state.posts[0].id);
@@ -444,6 +471,7 @@ function closeSidebar() {
 function bindEditor() {
   dom.dateInput.addEventListener('input', onEditorInput);
   dom.titleInput.addEventListener('input', onEditorInput);
+  dom.coverInput.addEventListener('input', onEditorInput);
   dom.contentInput.addEventListener('input', onEditorInput);
   dom.contentInput.addEventListener('keydown', onContentKeydown);
 
@@ -473,6 +501,7 @@ function onEditorInput() {
     ...state.current,
     date: dom.dateInput.value || todayISO(),
     title: dom.titleInput.value,
+    cover: dom.coverInput.value.trim(),
     content: dom.contentInput.value
   };
   state.dirty = true;
@@ -507,7 +536,7 @@ function setPreview(on) {
   const wasPreview = state.preview;
   state.preview = on;
   dom.previewToggle.classList.toggle('is-active', on);
-  dom.previewToggle.textContent = on ? 'Yaz' : 'Önizleme';
+  dom.previewToggle.textContent = on ? 'Yazmaya dön' : 'Kitapta önizle';
   dom.previewToggle.setAttribute('aria-pressed', String(on));
 
   if (on) {
@@ -527,8 +556,18 @@ function togglePreview() {
 }
 
 function updatePreview() {
-  const html = renderMarkdown(dom.contentInput.value);
-  dom.preview.innerHTML = rewriteRelativeAssets(html, '../');
+  dom.bookPreview.contentWindow?.postMessage({
+    type: 'notlar:preview',
+    site: state.site,
+    post: {
+      ...state.current,
+      id: state.current?.id || 'taslak',
+      date: dom.dateInput.value || todayISO(),
+      title: dom.titleInput.value,
+      cover: dom.coverInput.value.trim(),
+      content: dom.contentInput.value
+    }
+  }, location.origin);
 }
 
 function selectPost(id) {
@@ -546,6 +585,7 @@ function selectPost(id) {
     const differs =
       String(draft.post.title || '') !== String(post.title || '') ||
       String(draft.post.content || '') !== String(post.content || '') ||
+      String(draft.post.cover || '') !== String(post.cover || '') ||
       String(draft.post.date || '') !== String(post.date || '');
 
     if (differs) {
@@ -553,6 +593,7 @@ function selectPost(id) {
         ...post,
         date: isValidISO(draft.post.date) ? draft.post.date : post.date,
         title: String(draft.post.title || ''),
+        cover: String(draft.post.cover || ''),
         content: String(draft.post.content || '')
       };
       restored = true;
@@ -565,6 +606,7 @@ function selectPost(id) {
 
   dom.dateInput.value = working.date;
   dom.titleInput.value = working.title || '';
+  dom.coverInput.value = working.cover || '';
   dom.contentInput.value = working.content || '';
   dom.deleteButton.hidden = false;
   dom.editorState.textContent = restored ? 'Yerel taslak' : 'Yayında';
@@ -588,17 +630,24 @@ function newPost() {
     id: null,
     date: todayISO(),
     title: '',
+    cover: '',
     content: '',
     createdAt: null,
     updatedAt: null
   };
 
-  const restored = Boolean(draft?.post && (String(draft.post.title || '').trim() || String(draft.post.content || '').trim()));
+  const restored = Boolean(
+    draft?.post &&
+      (String(draft.post.title || '').trim() ||
+        String(draft.post.content || '').trim() ||
+        String(draft.post.cover || '').trim())
+  );
   const working = restored
     ? {
         ...base,
         date: isValidISO(draft.post.date) ? draft.post.date : base.date,
         title: String(draft.post.title || ''),
+        cover: String(draft.post.cover || ''),
         content: String(draft.post.content || '')
       }
     : base;
@@ -609,6 +658,7 @@ function newPost() {
 
   dom.dateInput.value = working.date;
   dom.titleInput.value = working.title;
+  dom.coverInput.value = working.cover;
   dom.contentInput.value = working.content;
   dom.deleteButton.hidden = true;
   dom.editorState.textContent = restored ? 'Yerel taslak' : 'Yeni yazı';
@@ -702,7 +752,19 @@ function onContentKeydown(event) {
    -------------------------------------------------------------------------- */
 
 async function publishCurrent() {
-  if (state.publishing || !state.github) return;
+  if (state.publishing) return;
+  if (!state.github) {
+    flushDraft();
+    state.pendingPost = state.current?.id || 'new';
+    showAuth();
+    showToast('Taslağın bu cihazda kayıtlı. Yayınlamak için depoya bağlan.');
+    return;
+  }
+  if (dom.coverInput.value.trim() && !safeImageUrl(dom.coverInput.value)) {
+    showToast('Görsel için https:// adresi veya assets/img/… yolu kullan.');
+    dom.coverInput.focus();
+    return;
+  }
 
   if (!dom.contentInput.value.trim()) {
     showToast('Yazı boş. Önce bir şeyler yaz.');
@@ -712,6 +774,7 @@ async function publishCurrent() {
 
   flushDraft();
   state.publishing = true;
+  $('.studio-layout').inert = true;
   dom.publishButton.disabled = true;
   dom.publishButton.textContent = 'Yayınlanıyor…';
   dom.saveStatus.textContent = 'Yayınlanıyor…';
@@ -721,6 +784,7 @@ async function publishCurrent() {
     id: state.current?.id || null,
     date: isValidISO(dom.dateInput.value) ? dom.dateInput.value : todayISO(),
     title: dom.titleInput.value.trim(),
+    cover: dom.coverInput.value.trim(),
     content: dom.contentInput.value,
     createdAt: state.current?.createdAt || now,
     updatedAt: now
@@ -759,6 +823,7 @@ async function publishCurrent() {
     showToast(githubErrorMessage(error));
   } finally {
     state.publishing = false;
+    $('.studio-layout').inert = false;
     dom.publishButton.disabled = false;
     dom.publishButton.textContent = 'Yayınla';
   }

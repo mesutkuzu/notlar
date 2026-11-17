@@ -3,9 +3,53 @@
    ========================================================================== */
 
 .studio-body {
+  --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --bg: #0d0f0e;
+  --surface: #f2ecdd;
+  --surface-2: #e9e1d0;
+  --surface-3: #e3d8c4;
+  --text: #24251f;
+  --text-2: #55564b;
+  --muted: #7d7d6f;
+  --line: #ded5c1;
+  --line-strong: #c9bfa8;
+  --accent: #b26b48;
+  --accent-2: #9d5939;
+  --accent-dark: #8f4b2f;
+  --accent-soft: #efe5d4;
+  --accent-glow: rgba(178, 107, 72, 0.16);
+  --selection: #e9d9c8;
+  --shadow: 0 24px 60px -44px rgba(0, 0, 0, 0.5);
   position: relative;
   min-height: 100dvh;
-  background: var(--bg);
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 26%, #1d211b 0%, #121512 48%, var(--bg) 100%);
+}
+
+.studio-body .brand {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: -0.065em;
+}
+
+.studio-body .auth-title,
+.studio-body .editor-title,
+.studio-body .modal-head h2,
+.studio-body .modal-body h2 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
+.studio-body .editor-content,
+.studio-body .editor-preview,
+.studio-body .prose {
+  font-family: var(--font-serif);
+}
+
+.studio-body .editor-content {
+  font-size: 17px;
+  line-height: 1.75;
 }
 
 .studio-glow {
@@ -15,7 +59,7 @@
   width: 1000px;
   height: 640px;
   margin-left: -500px;
-  background: radial-gradient(ellipse at center, rgba(47, 91, 232, 0.09), rgba(47, 91, 232, 0.02) 42%, transparent 68%);
+  background: radial-gradient(ellipse at center, rgba(178, 107, 72, 0.1), rgba(178, 107, 72, 0.02) 42%, transparent 68%);
   filter: blur(18px);
   pointer-events: none;
 }
@@ -556,6 +600,49 @@
   color: #b3b7c0;
 }
 
+.editor-cover-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.editor-cover-field label {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.editor-cover-field label span {
+  margin-left: 6px;
+  font-weight: 400;
+  letter-spacing: 0;
+  opacity: 0.65;
+  text-transform: none;
+}
+
+.editor-cover-field input {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 11px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  outline: 0;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 12.5px;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.editor-cover-field input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
 .editor-toolbar {
   display: flex;
   align-items: center;
@@ -968,4 +1055,28 @@
   .modal {
     width: calc(100vw - 20px);
   }
+}
+
+/* The preview runs the very same book renderer as the public page. */
+.editor-preview iframe {
+  display: block;
+  width: 100%;
+  height: clamp(340px, 65dvh, 720px);
+  border: 0;
+  border-radius: 4px;
+}
+.preview-note {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .topbar-left { flex: 1; overflow: hidden; }
+  .topbar-left .brand { min-width: 0; }
+  .topbar-left .brand-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .topbar-left .sidebar-toggle, .topbar-right { flex: none; }
+  .topbar-left .studio-tag, .topbar-sep { display: none; }
 }
