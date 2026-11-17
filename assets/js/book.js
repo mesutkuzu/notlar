@@ -10,9 +10,9 @@ import {
   safeImageUrl,
   debounce,
   clamp
-} from './core.js?v=20261117k';
-import { loadPosts, loadSite } from './data.js?v=20261117k';
-import { renderMarkdown } from './markdown.js?v=20261117k';
+} from './core.js?v=20261117m';
+import { loadPosts, loadSite } from './data.js?v=20261117m';
+import { renderMarkdown } from './markdown.js?v=20261117m';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -50,6 +50,9 @@ function cacheDom() {
   dom.loader = $('#book-loader');
   dom.area = $('#book-area');
   dom.book = $('#book');
+  dom.single = $('#single-book');
+  dom.singleBase = $('#single-base');
+  dom.singleFlip = $('#single-flip');
   dom.leaves = $('#book-leaves');
   dom.baseLeft = $('#base-left');
   dom.baseRight = $('#base-right');
@@ -183,16 +186,51 @@ function setMeta(attribute, name, value) {
 
 function computeLayout() {
   const sceneRect = dom.scene.getBoundingClientRect();
-  // Keep the same spread on phones; scale its complete typesetting together.
-  // Small physical pages otherwise hit font-size floors and crop their contents.
-  const availW = Math.max(1, sceneRect.width - 48);
-  const availH = Math.max(1, sceneRect.height - 100);
-  const fittedW = Math.min(availW / 2, availH / 1.4, 640);
-  const pageW = Math.max(400, Math.floor(fittedW));
-  const pageH = Math.floor(pageW * 1.4);
-  const scale = Math.min(1, availW / (pageW * 2), availH / pageH);
+  const single = window.innerWidth < 700;
 
-  return { pageW, pageH, scale, single: false, bookW: pageW * 2 };
+  if (single) {
+    const availW = Math.max(260, sceneRect.width - 24);
+    const availH = Math.max(340, sceneRect.height - 24);
+
+    let pageW = Math.min(460, availW);
+    let pageH = Math.min(availH, pageW * 1.95);
+
+    pageW = Math.min(pageW, pageH / 1.35);
+    pageH = Math.min(pageH, pageW * 2);
+    pageW = Math.max(230, Math.floor(pageW));
+    pageH = Math.max(340, Math.floor(pageH));
+
+    return {
+      pageW,
+      pageH,
+      single: true,
+      bookW: pageW
+    };
+  }
+
+  const availW = Math.max(300, sceneRect.width - 48);
+  const availH = Math.max(300, sceneRect.height - 48);
+
+  let pageH = Math.min(availH, 900);
+  let pageW = pageH / 1.4;
+
+  if (pageW * 2 > availW) {
+    pageW = availW / 2;
+    pageH = pageW * 1.4;
+  }
+
+  pageW = Math.min(pageW, 640);
+  pageH = pageW * 1.4;
+
+  pageW = Math.max(180, Math.floor(pageW));
+  pageH = Math.max(250, Math.floor(pageH));
+
+  return {
+    pageW,
+    pageH,
+    single: false,
+    bookW: pageW * 2
+  };
 }
 
 function layoutAndRender(initial = false) {
@@ -201,7 +239,6 @@ function layoutAndRender(initial = false) {
     layout.pageW === state.layout.pageW &&
     layout.pageH === state.layout.pageH &&
     layout.single === state.layout.single &&
-    layout.scale === state.layout.scale &&
     state.pages.length > 0;
 
   if (same) return;
@@ -214,7 +251,6 @@ function layoutAndRender(initial = false) {
   document.body.style.setProperty('--page-w', `${layout.pageW}px`);
   document.body.style.setProperty('--page-h', `${layout.pageH}px`);
   document.body.style.setProperty('--book-w', `${layout.bookW}px`);
-  document.body.style.setProperty('--book-scale', layout.scale);
   document.body.classList.toggle('is-single', layout.single);
 
   buildPages();
@@ -759,6 +795,22 @@ function renderBook() {
   state.coverNode = state.coverNode || makeCoverPage();
   state.backCoverNode = state.backCoverNode || makeBackCover();
 
+  if (state.mode === 'single') {
+    dom.book.hidden = true;
+    dom.single.hidden = false;
+    dom.single.classList.remove('is-dragging');
+    dom.singleFlip.replaceChildren();
+    dom.singleBase.replaceChildren();
+    dom.single.style.setProperty('--turn', '0');
+    renderSingleBase();
+    return;
+  }
+
+  dom.book.hidden = false;
+  dom.single.hidden = true;
+  dom.singleFlip.replaceChildren();
+  dom.singleBase.replaceChildren();
+
   preparePage(state.backCoverNode, 'left');
   state.backCoverNode.setAttribute('aria-hidden', 'true');
   dom.baseLeft.replaceChildren(state.backCoverNode);
@@ -822,8 +874,180 @@ function preparePage(node, side) {
   node.inert = false;
 }
 
+function renderSingleBase() {
+  dom.singleBase.replaceChildren();
+  dom.singleFlip.replaceChildren();
+  dom.singleFlip.classList.remove('is-flipping');
+  dom.single.style.setProperty('--turn', '0');
+  dom.single.style.setProperty('--single-rot', '0deg');
+
+  if (state.closed) {
+    preparePage(state.coverNode, 'right');
+    dom.singleBase.append(state.coverNode);
+    dom.single.classList.add('is-closed');
+  } else {
+    const page = state.pages[state.currentPage];
+    if (page) {
+      preparePage(page.node, 'right');
+      dom.singleBase.append(page.node);
+    }
+    dom.single.classList.remove('is-closed');
+  }
+
+  updateActivePages();
+}
+
+function showSingleBase(node) {
+  if (!node) return;
+  preparePage(node, 'right');
+  dom.singleBase.replaceChildren(node);
+}
+
+function showSingleFlip(node, progress) {
+  if (!node) return;
+  preparePage(node, 'right');
+  dom.singleFlip.replaceChildren(node);
+  dom.singleFlip.classList.add('is-flipping');
+  paintSingleFlip(progress);
+}
+
+function paintSingleFlip(progress) {
+  const value = clamp(progress, 0, 1);
+  const shade = Math.sin(Math.PI * value);
+
+  dom.singleFlip.style.setProperty('--single-rot', `${-180 * value}deg`);
+  dom.singleFlip.style.setProperty('--flip-shade', shade.toFixed(3));
+  dom.single.style.setProperty('--turn', (shade * 0.55).toFixed(3));
+}
+
+function animateSingleFlip(from, to) {
+  return new Promise((resolve) => {
+    state.animating = true;
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const duration = reduce ? 60 : Math.max(260, 620 * Math.abs(to - from));
+    const started = performance.now();
+
+    const tick = (now) => {
+      const progress = Math.min(1, (now - started) / duration);
+      const eased =
+        progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      const value = from + (to - from) * eased;
+
+      paintSingleFlip(value);
+
+      if (progress < 1) {
+        requestAnimationFrame(tick);
+        return;
+      }
+
+      paintSingleFlip(to);
+      dom.singleFlip.classList.remove('is-flipping');
+      state.animating = false;
+      resolve(true);
+    };
+
+    requestAnimationFrame(tick);
+  });
+}
+
+async function singleForward() {
+  if (state.animating || state.closed) return false;
+  if (state.currentPage >= state.pages.length - 1) return false;
+
+  const current = state.pages[state.currentPage].node;
+  const next = state.pages[state.currentPage + 1].node;
+
+  showSingleBase(next);
+  showSingleFlip(current, 0);
+  await animateSingleFlip(0, 1);
+  dom.singleFlip.replaceChildren();
+
+  state.currentPage += 1;
+  syncLeaves();
+  updateUI();
+  updateUrl();
+  return true;
+}
+
+async function singleBack() {
+  if (state.animating || state.closed) return false;
+  if (state.currentPage <= 0) return singleCloseCover();
+
+  const current = state.pages[state.currentPage].node;
+  const previous = state.pages[state.currentPage - 1].node;
+
+  showSingleBase(current);
+  showSingleFlip(previous, 1);
+  await animateSingleFlip(1, 0);
+  dom.singleFlip.replaceChildren();
+
+  state.currentPage -= 1;
+  syncLeaves();
+  updateUI();
+  updateUrl();
+  return true;
+}
+
+async function singleOpenCover() {
+  if (state.animating || !state.closed) return false;
+
+  const first = state.pages[0]?.node;
+  if (!first) return false;
+
+  showSingleBase(first);
+  showSingleFlip(state.coverNode, 0);
+  await animateSingleFlip(0, 1);
+  dom.singleFlip.replaceChildren();
+
+  state.closed = false;
+  state.currentPage = 0;
+  syncLeaves();
+  updateUI();
+  updateUrl();
+  return true;
+}
+
+async function singleCloseCover() {
+  if (state.animating || state.closed) return false;
+  if (state.currentPage !== 0) return false;
+
+  const first = state.pages[0]?.node;
+  if (!first) return false;
+
+  showSingleBase(first);
+  showSingleFlip(state.coverNode, 1);
+  await animateSingleFlip(1, 0);
+  dom.singleFlip.replaceChildren();
+
+  state.closed = true;
+  state.currentPage = 0;
+  syncLeaves();
+  updateUI();
+  updateUrl();
+  return true;
+}
+
 function syncLeaves() {
   const closed = state.closed;
+
+  if (state.mode === 'single') {
+    dom.area.classList.toggle('is-closed', closed);
+    dom.area.classList.remove('is-cover-moving');
+    dom.area.classList.remove('is-first-spread');
+    dom.area.style.setProperty('--cover-open', closed ? '0' : '1');
+    dom.book.hidden = true;
+    dom.single.hidden = false;
+    dom.single.classList.remove('is-dragging');
+    dom.singleFlip.replaceChildren();
+    dom.singleFlip.classList.remove('is-flipping');
+    dom.single.style.setProperty('--turn', '0');
+    renderSingleBase();
+    return;
+  }
+
   const currentSpread = Math.floor(state.currentPage / 2);
 
   dom.area.classList.toggle('is-closed', closed);
@@ -865,6 +1089,20 @@ function updateActivePages() {
     else state.coverNode.toggleAttribute('inert', !coverActive);
   }
 
+  if (state.mode === 'single') {
+    const activeIndex = state.closed ? -1 : state.currentPage;
+
+    state.pages.forEach((page, index) => {
+      const isActive = index === activeIndex;
+      if (isActive) page.node.removeAttribute('aria-hidden');
+      else page.node.setAttribute('aria-hidden', 'true');
+
+      if ('inert' in page.node) page.node.inert = !isActive;
+      else page.node.toggleAttribute('inert', !isActive);
+    });
+    return;
+  }
+
   if (state.closed) {
     state.pages.forEach((page) => {
       page.node.setAttribute('aria-hidden', 'true');
@@ -894,6 +1132,10 @@ function updateActivePages() {
    -------------------------------------------------------------------------- */
 
 function canForward() {
+  if (state.mode === 'single') {
+    if (state.closed) return true;
+    return state.currentPage < state.pages.length - 1;
+  }
   if (state.closed) return true;
   return Math.floor(state.currentPage / 2) < state.spreads - 1;
 }
@@ -904,6 +1146,16 @@ function canBack() {
 
 async function turnForward() {
   if (state.animating) return false;
+
+  if (state.mode === 'single') {
+    if (state.closed) {
+      markInteracted();
+      return singleOpenCover();
+    }
+    if (!canForward()) return false;
+    markInteracted();
+    return singleForward();
+  }
 
   if (state.closed) {
     markInteracted();
@@ -929,6 +1181,12 @@ async function turnForward() {
 async function turnBack() {
   if (state.animating || state.closed) return false;
 
+  if (state.mode === 'single') {
+    markInteracted();
+    if (state.currentPage === 0) return singleCloseCover();
+    return singleBack();
+  }
+
   const spread = Math.floor(state.currentPage / 2);
 
   if (spread === 0) {
@@ -950,11 +1208,21 @@ async function turnBack() {
 }
 
 function openBook() {
+  if (state.mode === 'single') {
+    if (state.animating || !state.closed) return Promise.resolve(false);
+    return singleOpenCover();
+  }
   if (state.animating || !state.closed) return Promise.resolve(false);
   return animateOpening(0, 1);
 }
 
 function closeBook() {
+  if (state.mode === 'single') {
+    if (state.animating || state.closed || state.currentPage !== 0) {
+      return Promise.resolve(false);
+    }
+    return singleCloseCover();
+  }
   if (state.animating || state.closed) return Promise.resolve(false);
   if (Math.floor(state.currentPage / 2) !== 0) return Promise.resolve(false);
   return animateOpening(1, 0);
@@ -1015,7 +1283,7 @@ function animateOpening(from, to) {
 }
 
 function paintBookPosition(shift) {
-  dom.book.style.transform = `translate3d(-50%, -50%, 0) scale(${state.layout.scale}) translate3d(${shift}px, 0, 0)`;
+  dom.book.style.transform = `translate3d(-50%, -50%, 0) translate3d(${shift}px, 0, 0)`;
 }
 
 function paintOpening(leaf, value) {
@@ -1088,6 +1356,16 @@ async function goToPage(index) {
 
   const target = normalizeTargetPage(index);
 
+  if (state.mode === 'single') {
+    state.closed = false;
+    state.currentPage = target;
+    syncLeaves();
+    updateUI();
+    updateUrl();
+    markInteracted();
+    return;
+  }
+
   if (state.mode === 'spread') {
     const current = Math.floor(state.currentPage / 2);
     const wanted = Math.floor(target / 2);
@@ -1128,6 +1406,17 @@ function jumpTo(index) {
     dom.area.classList.remove('is-closed');
   }
   state.currentPage = normalizeTargetPage(index);
+
+  if (state.mode === 'single') {
+    dom.single.classList.add('is-jumping');
+    syncLeaves();
+    updateUI();
+    updateUrl();
+    markInteracted();
+    window.setTimeout(() => dom.single.classList.remove('is-jumping'), 260);
+    return;
+  }
+
   dom.book.classList.add('is-jumping');
   syncLeaves();
   updateUI();
@@ -1142,9 +1431,9 @@ function jumpTo(index) {
 
 function onPointerDown(event) {
   if (event.button !== 0 || state.animating || state.pages.length < 2) return;
-  if (event.target.closest('a, button, input, textarea, select, [contenteditable="true"]')) return;
 
-  const rect = dom.book.getBoundingClientRect();
+  const surface = state.mode === 'single' ? dom.single : dom.book;
+  const rect = surface.getBoundingClientRect();
   const width = rect.width;
   const x = event.clientX - rect.left;
 
@@ -1152,8 +1441,14 @@ function onPointerDown(event) {
   let leaf = null;
   let opening = false;
   let closing = false;
+  let coverOpen = false;
 
-  if (state.closed) {
+  if (state.mode === 'single') {
+    if (state.closed) {
+      direction = 1;
+      coverOpen = true;
+    }
+  } else if (state.closed) {
     if (x < width / 2) return;
     direction = 1;
     opening = true;
@@ -1173,16 +1468,20 @@ function onPointerDown(event) {
     }
   }
 
-  if (!leaf) return;
+  if (state.mode !== 'single' && !leaf) return;
 
   state.pointer = {
     id: event.pointerId,
+    surface,
+    single: state.mode === 'single',
     startX: event.clientX,
     startY: event.clientY,
     direction,
     leaf,
     opening,
     closing,
+    coverOpen,
+    closeCover: false,
     moved: false,
     progress: direction === 1 ? 0 : 1,
     lastX: event.clientX,
@@ -1190,7 +1489,7 @@ function onPointerDown(event) {
     velocity: 0
   };
 
-  dom.book.addEventListener('pointermove', onPointerMove);
+  surface.addEventListener('pointermove', onPointerMove);
   window.addEventListener('pointerup', onPointerUp);
   window.addEventListener('pointercancel', onPointerUp);
 }
@@ -1202,13 +1501,76 @@ function onPointerMove(event) {
   const dx = event.clientX - pointer.startX;
   const dy = event.clientY - pointer.startY;
 
+  if (pointer.single) {
+    if (!pointer.moved) {
+      if (Math.abs(dx) < 7 || Math.abs(dx) <= Math.abs(dy)) return;
+
+      if (state.closed) {
+        pointer.direction = 1;
+        pointer.coverOpen = true;
+      } else {
+        pointer.direction = dx < 0 ? 1 : -1;
+
+        if (pointer.direction === 1) {
+          if (state.currentPage >= state.pages.length - 1) return;
+        } else if (state.currentPage === 0) {
+          pointer.closeCover = true;
+        }
+      }
+
+      pointer.moved = true;
+      state.animating = true;
+
+      try {
+        pointer.surface.setPointerCapture?.(pointer.id);
+      } catch {
+        /* sentetik olaylarda yakalama gerekmez */
+      }
+
+      if (pointer.coverOpen) {
+        showSingleBase(state.pages[0].node);
+        showSingleFlip(state.coverNode, 0);
+      } else if (pointer.direction === 1) {
+        showSingleBase(state.pages[state.currentPage + 1].node);
+        showSingleFlip(state.pages[state.currentPage].node, 0);
+      } else if (pointer.closeCover) {
+        showSingleBase(state.pages[0].node);
+        showSingleFlip(state.coverNode, 1);
+      } else {
+        showSingleBase(state.pages[state.currentPage].node);
+        showSingleFlip(state.pages[state.currentPage - 1].node, 1);
+      }
+
+      dom.single.classList.add('is-dragging');
+      markInteracted();
+    }
+
+    const pageW = state.layout.pageW;
+    const progress =
+      pointer.direction === 1
+        ? clamp(-dx / pageW, 0, 1)
+        : clamp(1 - dx / pageW, 0, 1);
+
+    pointer.progress = progress;
+    paintSingleFlip(progress);
+
+    const now = performance.now();
+    const elapsed = now - pointer.lastTime;
+    if (elapsed > 0) {
+      pointer.velocity = (event.clientX - pointer.lastX) / elapsed;
+    }
+    pointer.lastX = event.clientX;
+    pointer.lastTime = now;
+    return;
+  }
+
   if (!pointer.moved) {
     if (Math.abs(dx) < 7 || Math.abs(dx) <= Math.abs(dy)) return;
 
     pointer.moved = true;
     state.animating = true;
     try {
-      dom.book.setPointerCapture?.(pointer.id);
+      pointer.surface.setPointerCapture?.(pointer.id);
     } catch {
       /* sentetik olaylarda yakalama gerekmez */
     }
@@ -1228,7 +1590,7 @@ function onPointerMove(event) {
     markInteracted();
   }
 
-  const pageW = state.layout.pageW * state.layout.scale;
+  const pageW = state.layout.pageW;
   const progress =
     pointer.direction === 1
       ? clamp(-dx / pageW, 0, 1)
@@ -1252,20 +1614,28 @@ function onPointerUp(event) {
   const pointer = state.pointer;
   if (!pointer || event.pointerId !== pointer.id) return;
 
-  dom.book.removeEventListener('pointermove', onPointerMove);
+  const surface = pointer.surface || dom.book;
+
+  surface.removeEventListener('pointermove', onPointerMove);
   window.removeEventListener('pointerup', onPointerUp);
   window.removeEventListener('pointercancel', onPointerUp);
   dom.book.classList.remove('is-dragging');
+  dom.single.classList.remove('is-dragging');
 
-  if (dom.book.hasPointerCapture?.(pointer.id)) {
+  if (surface.hasPointerCapture?.(pointer.id)) {
     try {
-      dom.book.releasePointerCapture(pointer.id);
+      surface.releasePointerCapture(pointer.id);
     } catch {
       /* yoksay */
     }
   }
 
-  if (!pointer.moved || !pointer.leaf) {
+  if (!pointer.moved) {
+    state.pointer = null;
+    return;
+  }
+
+  if (!pointer.single && !pointer.leaf) {
     state.pointer = null;
     return;
   }
@@ -1274,6 +1644,41 @@ function onPointerUp(event) {
 
   const progress = pointer.progress;
   const velocity = pointer.velocity;
+
+  if (pointer.single) {
+    const direction = pointer.direction;
+    const coverOpen = pointer.coverOpen;
+    const closeCover = pointer.closeCover;
+    const target =
+      direction === 1
+        ? progress > 0.4 || velocity < -0.3
+          ? 1
+          : 0
+        : progress < 0.6 || velocity > 0.3
+          ? 0
+          : 1;
+
+    state.pointer = null;
+
+    animateSingleFlip(progress, target).then(() => {
+      if (coverOpen) {
+        state.closed = target !== 1;
+        if (target === 1) state.currentPage = 0;
+      } else if (closeCover) {
+        state.closed = target === 0;
+      } else if (direction === 1 && target === 1) {
+        state.currentPage += 1;
+      } else if (direction === -1 && target === 0) {
+        state.currentPage -= 1;
+      }
+
+      syncLeaves();
+      updateUI();
+      updateUrl();
+    });
+    return;
+  }
+
   const leaf = pointer.leaf;
   const opening = pointer.opening;
   const closing = pointer.closing;
@@ -1315,11 +1720,25 @@ function onPointerUp(event) {
 }
 
 function onBookClick(event) {
-  if (performance.now() < state.ignoreClickUntil) return;
+  if (performance.now() < state.ignoreClickUntil) {
+    event.preventDefault();
+    event.stopPropagation();
+    return;
+  }
   if (event.target.closest('a, button, input, textarea, select, [contenteditable="true"]')) return;
 
   if (state.closed) {
     openBook();
+    return;
+  }
+
+  if (state.mode === 'single') {
+    const rect = dom.single.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const width = rect.width;
+
+    if (x > width * 0.8) turnForward();
+    else if (x < width * 0.2) turnBack();
     return;
   }
 
@@ -1340,10 +1759,18 @@ function updateUI() {
   if (!total) return;
 
   if (state.closed) {
-    dom.book.setAttribute(
-      'aria-label',
-      `${state.site.author || 'Notlar'} kitabı, kapalı. Açmak için kapağı çevir.`
-    );
+    const label = `${state.site.author || 'Notlar'} kitabı, kapalı. Açmak için kapağı çevir.`;
+    dom.book.setAttribute('aria-label', label);
+    dom.single.setAttribute('aria-label', label);
+    return;
+  }
+
+  if (state.mode === 'single') {
+    const label = `${state.site.author || 'Notlar'} kitabı, ${
+      state.currentPage + 1
+    }. sayfa, ${total} sayfa`;
+    dom.single.setAttribute('aria-label', label);
+    dom.book.setAttribute('aria-label', label);
     return;
   }
 
@@ -1422,6 +1849,8 @@ function bindEvents() {
 
   dom.book?.addEventListener('pointerdown', onPointerDown);
   dom.book?.addEventListener('click', onBookClick);
+  dom.single?.addEventListener('pointerdown', onPointerDown);
+  dom.single?.addEventListener('click', onBookClick);
 
   document.addEventListener(
     'error',
@@ -1437,6 +1866,7 @@ function bindEvents() {
   document.addEventListener('click', (event) => {
     const target = event.target.closest('[data-goto]');
     if (!target) return;
+    if (performance.now() < state.ignoreClickUntil) return;
     event.preventDefault();
     goToPage(Number(target.dataset.goto));
   });

@@ -15,8 +15,8 @@ import {
   escapeHTML,
   normalize,
   safeImageUrl
-} from './core.js?v=20261117k';
-import { GitHub, githubErrorMessage } from './github.js?v=20261117k';
+} from './core.js?v=20261117m';
+import { GitHub, githubErrorMessage } from './github.js?v=20261117m';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];

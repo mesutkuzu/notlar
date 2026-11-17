@@ -8,9 +8,9 @@ import {
   postTitle,
   plainText,
   safeImageUrl
-} from './core.js?v=20261117k';
-import { loadPosts, loadSite } from './data.js?v=20261117k';
-import { renderMarkdown } from './markdown.js?v=20261117k';
+} from './core.js?v=20261117m';
+import { loadPosts, loadSite } from './data.js?v=20261117m';
+import { renderMarkdown } from './markdown.js?v=20261117m';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 
