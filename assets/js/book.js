@@ -13,6 +13,7 @@ import {
 } from './core.js?v=20261117m';
 import { loadPosts, loadSite } from './data.js?v=20261117m';
 import { renderMarkdown } from './markdown.js?v=20261117m';
+import { storyArt } from './story-art.js?v=20261117r';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -574,8 +575,77 @@ function buildStoryPages(post, chapterIndex, measure) {
     pages.push(current);
   }
 
+  placeStoryArt(post, pages, measure);
   measure.replaceChildren();
   return pages;
+}
+
+// Illustrations use remaining space after text pagination, without adding pages.
+function placeStoryArt(post, pages, measure) {
+  const art = storyArt[post.id];
+  if (!art?.length) return;
+
+  const gap = 18;
+  const minimum = Math.min(120, state.layout.pageH * 0.18);
+  const slots = pages.map((page, index) => {
+    measure.replaceChildren(page.node);
+    const flow = page.node.querySelector('.page-flow');
+    const prose = page.node.querySelector('.book-prose');
+    return {
+      index,
+      page,
+      free: flow.clientHeight - prose.offsetHeight,
+      width: flow.clientWidth,
+      text: prose.textContent.replace(/\s+/g, ' ')
+    };
+  });
+  const used = new Set();
+  let lastIndex = -1;
+
+  for (const illustration of art) {
+    const anchor = slots.findIndex(slot => slot.text.includes(illustration.anchor));
+    if (anchor < 0) continue;
+
+    const candidates = slots.filter(slot =>
+      !used.has(slot.index) && slot.index > lastIndex &&
+      slot.free >= minimum + gap + 4 && Math.abs(slot.index - anchor) <= 2
+    );
+    candidates.sort((a, b) =>
+      Math.abs(a.index - anchor) - Math.abs(b.index - anchor) ||
+      // Prefer the following page when the referenced paragraph fills its page.
+      b.index - a.index
+    );
+    const slot = candidates[0];
+    if (!slot) continue;
+
+    measure.replaceChildren(slot.page.node);
+    const figure = document.createElement('figure');
+    figure.className = `page-illustration page-illustration--${illustration.position}`;
+    const height = Math.floor(Math.min(
+      state.layout.pageH * 0.35, slot.width * 0.72, slot.free - gap - 4
+    ));
+    figure.style.setProperty('--art-height', `${height}px`);
+    const img = document.createElement('img');
+    img.src = illustration.src;
+    img.alt = illustration.alt;
+    img.width = 1536;
+    img.height = 1024;
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.addEventListener('error', () => figure.remove(), { once: true });
+    figure.append(img);
+
+    const flow = slot.page.node.querySelector('.page-flow');
+    if (illustration.position === 'top') flow.before(figure);
+    else flow.after(figure);
+
+    if (isOverflow(slot.page.node)) {
+      figure.remove();
+      continue;
+    }
+    used.add(slot.index);
+    lastIndex = slot.index;
+  }
 }
 
 function createStoryPage(post, chapterIndex, isOpener) {

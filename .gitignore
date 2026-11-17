@@ -7,3 +7,5 @@ _site/
 .agents/
 .codex/
 AGENTS.md
+local-notes/
+generated_images/

@@ -21,5 +21,3 @@ Bir de sevdiğimiz insanlara karşı tuhaf bir hesabımız var. Onlar için uğr
 Hayatın amacı dediğimiz şeyin tek cümlelik, herkese uyacak bir cevabı var mı, bilmiyorum. Kendi cevabımın da ömrüm boyunca aynı kalacağını sanmıyorum. Ama soruyu sürekli ertelemekten sıkıldım. Sanki bunu düşünmek için başka bir hayatım daha varmış gibi davranmaktan.
 
 Bugün kendime “Ben ne istiyorum?” diye sorsam, vereceğim cevabın ne kadar basit olabileceği de aklıma geliyor. Biraz daha az endişelenmek. Birinin yanında saate bakmadan oturabilmek. Sevdiğim bir şeyi yaparken bundan ne kazanacağımı hesaplamamak. Belki önce bunları ciddiye almam gerekiyor. Büyük bir amaç bulamadım diye, günlerimin nasıl geçtiği önemsizleşmiyor.
-
-Neden yaşıyoruz? Bu hayattaki amacımız ne?

@@ -600,6 +600,35 @@
   opacity: 0.82;
 }
 
+/* Book spot illustrations ------------------------------------------------- */
+
+.page-illustration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 var(--art-height);
+  height: var(--art-height);
+  min-height: 0;
+  width: 100%;
+  margin: 0;
+  pointer-events: none;
+}
+
+.page-illustration--top {
+  margin-bottom: 18px;
+}
+
+.page-illustration--bottom {
+  margin-top: 18px;
+}
+
+.page-illustration img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 /* Kitap metni ------------------------------------------------------------- */
 
 .book-prose > *:first-child {
