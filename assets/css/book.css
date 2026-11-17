@@ -55,6 +55,18 @@
   outline-offset: 4px;
 }
 
+/* The group includes an empty left half when closed. Follow the physical
+   boards instead, including while the front board is turning. */
+.book:focus-visible {
+  outline: none;
+}
+
+.book:focus-visible .book-cover,
+.book:focus-visible .leaf--cover::before {
+  outline: 1px solid var(--copper-bright);
+  outline-offset: 4px;
+}
+
 /* Atmosfer ---------------------------------------------------------------- */
 
 .scene-light,
@@ -322,7 +334,9 @@
   display: none;
 }
 
-.book-area.is-closed .book-block--bottom {
+.book-area.is-closed .book-block--bottom,
+.book-area.is-cover-moving .book-block--bottom,
+.book-area.is-first-spread .book-block--bottom {
   left: calc(50% + 8px);
 }
 
@@ -338,10 +352,6 @@
 
 .book-area.is-first-spread .book-block--left {
   display: none;
-}
-
-.book-area.is-first-spread .book-block--bottom {
-  left: calc(50% + 8px);
 }
 
 .book-cover::before {
