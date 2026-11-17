@@ -794,7 +794,7 @@ async function publishCurrent() {
   let finalPost = null;
 
   try {
-    const message = `yazı: ${base.title || formatShort(base.date)}`;
+    const message = base.id ? 'Yazıyı güncelle' : 'Yazıyı ekle';
 
     const merged = await commitPosts((latest) => {
       if (!chosenId) chosenId = uniqueId(base, latest);
@@ -884,7 +884,7 @@ async function deleteCurrent() {
   try {
     const merged = await commitPosts(
       (latest) => latest.filter((post) => post.id !== deletingId),
-      `sil: ${postTitle(state.current)}`
+      'Yazıyı sil'
     );
 
     state.posts = merged;
@@ -965,7 +965,7 @@ async function saveSettings() {
       title,
       author,
       description
-    }), 'ayarlar: site');
+    }), 'Site ayarlarını güncelle');
 
     state.site = { ...state.site, ...updated };
     applySiteBrand();

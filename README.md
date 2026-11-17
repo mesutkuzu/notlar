@@ -46,7 +46,7 @@ python3 -m http.server 8080
 ```
 
 - Ana sayfa: `http://localhost:8080/`
-- Yazı: `http://localhost:8080/post.html?id=baslamak-uzerine`
+- Yazı: `http://localhost:8080/post.html?id=musait-bir-zamanda`
 - Studio: `http://localhost:8080/studio/`
 
 ## Dosyalar
@@ -69,8 +69,10 @@ assets/js/github.js     GitHub Contents API
 
 ## GitHub Pages
 
+Yayın paketi yalnızca site varlıklarını, yazı verilerini, HTML sayfalarını ve manifest dosyalarını içerir.
+
 Repo public. Pages kaynağı **GitHub Actions** (`main`). `.github/workflows/pages.yml` yalnızca kod değişikliklerinde çalışır; `data/**` commit'leri deploy tetiklemez. Site yazıları zaten GitHub raw üzerinden canlı okuduğu için içerik değişiklikleri anında görünür.
 
 ## Not
 
-`data/posts.json` içindeki yazılar başlangıç örnekleridir. Studio'dan düzenleyebilir veya silebilirsin. Site herkese açıktır; gizli bilgi yazma.
+`data/posts.json` yayınlanan yazıları içerir. Studio üzerinden düzenlenebilir. Kitap doğrudan ilk yazıyla açılır. Site herkese açıktır.

@@ -1,1 +1,9 @@
 .DS_Store
+.env
+.env.*
+*.bundle
+*.log
+_site/
+.agents/
+.codex/
+AGENTS.md

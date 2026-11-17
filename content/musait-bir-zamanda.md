@@ -1,0 +1,25 @@
+# Müsait bir zamanda
+
+Akşam olunca bazen gün boyunca ne yaptığımı gayet iyi biliyorum ama o günü nasıl yaşadığımı söyleyemiyorum. Birkaç iş halletmişim, mesajlara dönmüşüm, bir yere gidip gelmişim. Yorulmuşum da. Fakat bütün bunların arasında beni ilgilendiren, bana ait ne olmuş, orası biraz belirsiz.
+
+Yine de ertesi sabah aynı telaşa kolayca dönüyorum. Çünkü yapılacak şeyler belli. Neden yaptığım üzerine düşünmem gerekmiyor. Telefonu açınca birileri zaten neyle ilgilenmem gerektiğini söylüyor. Bir haber, bir ödeme, cevap bekleyen bir mesaj. Daha yataktan kalkmadan günün konusu seçilmiş oluyor.
+
+Yaşamayı böyle böyle öğrenmişiz galiba. Önce okul bitsin. Sonra bir iş bulalım. Biraz para biriksin, şu borç kapansın, düzenimiz otursun. Her aşamanın ucunda kendimize kalacak bir vakit varmış gibi. Ama o vakit bir türlü gelmiyor. Bir mesele hallolunca yerini başka bir şey alıyor. Ben de bunu hayatın olağan akışı sayıp devam ediyorum.
+
+Arada, hiç hesapta yokken, tuhaf bir soru geliyor: Ben bütün bunları niye yapıyorum?
+
+Kulağa biraz şımarıkça geldiğinin farkındayım. İnsanların geçinmek için neler çektiği ortadayken oturup hayatın anlamını konuşmak lüks gibi görünebilir. Faturayı ödemenin, evine ekmek götürmenin öyle açıklanmaya ihtiyacı yok. Karnın açken bu soruya ayıracak hâlin de olmayabilir. Ama temel ihtiyaçlarımız için gösterdiğimiz çabanın, zamanla bütün hayatımızı açıklamaya yettiğini sanıyoruz. Bir gün durup bakınca, kurduğumuz düzeni sürdürmek dışında pek bir şey düşünmediğimizi fark ediyoruz.
+
+Beni asıl rahatsız eden bu. Çok çalışmış olmak değil. Neyin peşinde bu kadar çalıştığımı unutabilmek.
+
+Neden yaşıyoruz? Bu hayatta bir amacımız var mı? Cevabı hazır birileri var elbette. İnancında bulan var, çocuğunda, yaptığı işte, sevdiği insanda bulan var. Bunları küçümsemiyorum. Hatta bazen o kadar emin olabilmeye imreniyorum. Benim takıldığım yer, kendime ait olduğunu sandığım cevapların ne kadarının gerçekten bana ait olduğu. İyi bir iş, iyi bir ev, başarılı görünmek… Bunları istediğimi söylüyorum da, istemeyi ne zaman öğrendim? Hangisini düşünerek seçtim, hangisine herkes oraya gidiyor diye yürüdüm?
+
+Bu soruyla uzun süre baş başa kalmak pek hoş değil. Bazı kararlarına yeniden bakman gerekiyor. Yıllardır emek verdiğin bir şeyin seni aslında çok da heyecanlandırmadığını kabul etmen gerekebilir. Belki de bu yüzden meşgul olmak bazen işimize geliyor. Biraz sessiz kalsam aklıma gelecek şeyleri, yeni bir işle erteleyebiliyorum. Akşam telefonu elimden bırakmayışımın tek sebebi eğlenmek olmayabilir.
+
+Bir de sevdiğimiz insanlara karşı tuhaf bir hesabımız var. Onlar için uğraştığımızı söylerken onlara ayıracak vakit bulamıyoruz. Aramayı düşündüğümüz kişiyi haftalarca aramıyoruz mesela. Uygun bir zaman bekliyoruz. Sonra o kişiye değil, bir zamanlar çok acil sandığımız işlere ne kadar saat verdiğimizi düşünüyorum. Bu hesabı dürüstçe yapınca kendimi pek haklı bulamıyorum.
+
+Hayatın amacı dediğimiz şeyin tek cümlelik, herkese uyacak bir cevabı var mı, bilmiyorum. Kendi cevabımın da ömrüm boyunca aynı kalacağını sanmıyorum. Ama soruyu sürekli ertelemekten sıkıldım. Sanki bunu düşünmek için başka bir hayatım daha varmış gibi davranmaktan.
+
+Bugün kendime “Ben ne istiyorum?” diye sorsam, vereceğim cevabın ne kadar basit olabileceği de aklıma geliyor. Biraz daha az endişelenmek. Birinin yanında saate bakmadan oturabilmek. Sevdiğim bir şeyi yaparken bundan ne kazanacağımı hesaplamamak. Belki önce bunları ciddiye almam gerekiyor. Büyük bir amaç bulamadım diye, günlerimin nasıl geçtiği önemsizleşmiyor.
+
+Yazıyı bitirince yine dönmem gereken işler var. İçlerinden bazıları gerçekten bekleyemez. Ama uzun zamandır aramak istediğim biri de var. Onun da hep bekleyebileceğini nereden çıkardım?

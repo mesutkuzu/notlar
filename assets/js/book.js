@@ -64,7 +64,6 @@ function cacheDom() {
   dom.error = $('#book-error');
   dom.retry = $('#retry-load');
   dom.tocButton = $('#toc-button');
-  dom.aboutButton = $('#about-button');
   dom.flatIndex = $('#flat-index');
   dom.footEdition = $('#foot-edition');
 }
@@ -348,10 +347,6 @@ function buildPages() {
 
   const pages = [];
 
-  pages.push(makePage('frontis', frontisHTML()));
-  pages.push(makePage('blank', '<span class="blank-mark" aria-hidden="true"></span>'));
-  pages.push(makePage('about', aboutHTML()));
-
   const entries = [];
 
   state.posts.forEach((post, index) => {
@@ -361,14 +356,14 @@ function buildPages() {
     entries.push({ post, index: startIndex });
   });
 
+  // Open on the writing. A collected index belongs at the back.
+  if (entries.length > 1) pages.push(makePage('toc', tocHTML(entries)));
+
   if (pages.length % 2 === 0) {
     pages.push(makePage('blank', '<span class="blank-mark" aria-hidden="true"></span>'));
   }
 
   pages.push(makePage('colophon', colophonHTML()));
-
-  const toc = makePage('toc', tocHTML(entries));
-  pages[1] = toc;
 
   pages.forEach((page, index) => {
     page.folio = index + 1;
@@ -445,29 +440,6 @@ function frameMarkup(className) {
       <span class="frame-corner frame-corner--bl"></span>
       <span class="frame-corner frame-corner--br"></span>
     </div>
-  `;
-}
-
-function frontisHTML() {
-  return `
-    ${frameMarkup('frontis-frame')}
-    <span class="frontis-ornament" aria-hidden="true"></span>
-    <p class="frontis-quote">Yazmak, geçen günü geri çağırmanın en sessiz yolu.</p>
-    <span class="frontis-rule" aria-hidden="true"></span>
-  `;
-}
-
-function aboutHTML() {
-  const description = escapeHTML(state.site.description || DEFAULT_SITE.description);
-
-  return `
-    <p class="page-eyebrow">Bu defter hakkında</p>
-    <h2 class="page-title">Bir yer açmak<span>.</span></h2>
-    <div class="about-body">
-      <p>${description}</p>
-      <p>Bazen bir düşüncenin peşinden, bazen günün içinden bir anın. Burası, onlara bir yer açmak için.</p>
-    </div>
-    <p class="about-quote">“Unutmamak için değil; dikkatle bakmak için.”</p>
   `;
 }
 
@@ -1839,11 +1811,6 @@ function bindEvents() {
 
   dom.tocButton?.addEventListener('click', () => {
     const index = state.pages.findIndex((page) => page.kind === 'toc');
-    if (index >= 0) goToPage(index);
-  });
-
-  dom.aboutButton?.addEventListener('click', () => {
-    const index = state.pages.findIndex((page) => page.kind === 'about');
     if (index >= 0) goToPage(index);
   });
 
