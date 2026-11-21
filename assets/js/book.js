@@ -15,7 +15,7 @@ import {
 } from './core.js?v=20261121b';
 import { loadPosts, loadSite } from './data.js?v=20261121b';
 import { renderMarkdown } from './markdown.js?v=20261121b';
-import { storyArt } from './story-art.js?v=20261121b';
+import { storyArt } from './story-art.js?v=20261121f';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -657,21 +657,22 @@ function buildStoryPages(post, chapterIndex, measure) {
       continue;
     }
 
+    // Fill the remaining lines before carrying a paragraph to the next page.
+    const split = splitBlock(block, current.node, prose);
+
+    if (split && split.head) {
+      prose.appendChild(split.head);
+      hasContent = true;
+      if (needsDropcap && block.tagName === 'P') needsDropcap = false;
+
+      if (split.rest) queue[0] = split.rest;
+      else queue.shift();
+
+      finish();
+      continue;
+    }
+
     if (!hasContent) {
-      const split = splitBlock(block, current.node, prose);
-
-      if (split && split.head) {
-        prose.appendChild(split.head);
-        hasContent = true;
-        if (needsDropcap && block.tagName === 'P') needsDropcap = false;
-
-        if (split.rest) queue[0] = split.rest;
-        else queue.shift();
-
-        finish();
-        continue;
-      }
-
       // Tek başına bile sığmayan bölünemez blok: olduğu gibi bırak.
       prose.appendChild(block);
       queue.shift();
@@ -863,13 +864,51 @@ function splitBlock(block, page, prose) {
 
   if (!best) return null;
 
-  const split = makeSplit(block, best);
-  if (!split || !split.head || !split.head.textContent.trim()) return null;
-
-  return {
-    head: split.head,
-    rest: split.rest && split.rest.textContent.trim() ? split.rest : null
+  // Keep sentences together when only a few words would be left on either
+  // side of the page break.
+  const countWords = (value) => {
+    const clean = String(value || '').trim();
+    return clean ? clean.split(/\s+/).length : 0;
   };
+
+  let sentenceStart = 0;
+  for (const match of text.slice(0, best).matchAll(/[.!?…][”’"'»)]*\s+/g)) {
+    sentenceStart = match.index + match[0].length;
+  }
+
+  const sentenceEndPattern = /[.!?…][”’"'»)]*(?:\s+|$)/g;
+  sentenceEndPattern.lastIndex = best;
+  const sentenceEndMatch = sentenceEndPattern.exec(text);
+  const sentenceEnd = sentenceEndMatch ? sentenceEndMatch.index + sentenceEndMatch[0].length : text.length;
+
+  const headWords = countWords(text.slice(sentenceStart, best));
+  const remainderWords = countWords(text.slice(best, sentenceEnd));
+  if (sentenceStart > 0 && ((headWords > 0 && headWords <= 3) || (remainderWords > 0 && remainderWords <= 3))) {
+    best = sentenceStart;
+  }
+
+  // Keep at least two lines on either side of a paragraph break.
+  const lineHeight = parseFloat(getComputedStyle(prose).lineHeight);
+  while (best > 0) {
+    const split = makeSplit(block, best);
+    if (!split?.head || !split.rest) return null;
+
+    prose.appendChild(split.head);
+    const headHeight = split.head.getBoundingClientRect().height;
+    prose.removeChild(split.head);
+    if (headHeight < lineHeight * 1.8) return null;
+
+    prose.appendChild(split.rest);
+    const restHeight = split.rest.getBoundingClientRect().height;
+    prose.removeChild(split.rest);
+    if (restHeight >= lineHeight * 1.8) {
+      return { head: split.head, rest: split.rest };
+    }
+
+    best = boundaryAt(text, best - 1);
+  }
+
+  return null;
 }
 
 function boundaryAt(text, index) {

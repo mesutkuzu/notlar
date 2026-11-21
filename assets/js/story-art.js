@@ -18,5 +18,13 @@ export const storyArt = {
       anchor: 'Bir de sevdiğimiz insanlara',
       position: 'top'
     }
+  ],
+  'ben-de-yoruluyorum': [
+    {
+      src: 'assets/img/ben-de-yoruluyorum/esikte.webp?v=20261121a',
+      alt: 'Çantasını ve evraklarını kenara bırakıp kapı eşiğinde dinlenen, düşünceli bir adam.',
+      anchor: 'Şimdi çalışmıyorum.',
+      position: 'bottom'
+    }
   ]
 };
