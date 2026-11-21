@@ -559,6 +559,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   flex: none;
   height: calc(var(--page-h) * 0.045);
   color: #6f7062;
@@ -568,6 +569,20 @@
   letter-spacing: 0.24em;
   text-transform: uppercase;
   opacity: 0.75;
+}
+
+.page-head-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.page-head-date {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  opacity: 0.78;
 }
 
 .page-flow {
@@ -1353,9 +1368,26 @@
 }
 
 .toc-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   flex: 0 1 auto;
   min-width: 0;
+}
+
+.toc-title-text {
   overflow-wrap: anywhere;
+}
+
+.toc-date {
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: clamp(6px, calc(var(--page-w) * 0.012), 7.5px);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .toc-dots {
@@ -1495,6 +1527,78 @@
   line-height: 1.15;
   letter-spacing: -0.025em;
   text-align: center;
+}
+
+.colophon-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.colophon-timer {
+  width: 100%;
+  margin-top: clamp(26px, 5vh, 44px);
+}
+
+.colophon-timer-title {
+  color: var(--copper);
+  font-family: var(--sans);
+  font-size: clamp(7px, calc(var(--page-w) * 0.014), 8.5px);
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.colophon-timer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  row-gap: 12px;
+  margin-top: 14px;
+  padding: 12px 0 11px;
+  border-top: 1px solid rgba(178, 107, 72, 0.35);
+  border-bottom: 1px solid rgba(178, 107, 72, 0.18);
+}
+
+.timer-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  border-left: 1px solid rgba(36, 37, 31, 0.12);
+}
+
+.timer-unit:first-child,
+.timer-unit:nth-child(4) {
+  border-left: 0;
+}
+
+.timer-unit strong {
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: clamp(18px, calc(var(--page-w) * 0.048), 26px);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.timer-unit small {
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: clamp(6px, calc(var(--page-w) * 0.0125), 7.5px);
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.colophon-timer-since {
+  margin-top: 12px;
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: clamp(6.5px, calc(var(--page-w) * 0.013), 8px);
+  letter-spacing: 0.08em;
 }
 
 .colophon-title {

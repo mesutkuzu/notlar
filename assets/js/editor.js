@@ -15,13 +15,16 @@ import {
   escapeHTML,
   normalize,
   safeImageUrl
-} from './core.js?v=20261117m';
-import { GitHub, githubErrorMessage } from './github.js?v=20261117m';
+} from './core.js?v=20261121b';
+import { GitHub, GitHubError, githubErrorMessage } from './github.js?v=20261121b';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
-const CONFIG_KEY = 'notlar:github:v1';
+const CONFIG_KEY = 'notlar:github:v2';
+const LEGACY_CONFIG_KEY = 'notlar:github:v1';
+const SESSION_TOKEN_KEY = 'notlar:github:token:session';
+const DEVICE_TOKEN_KEY = 'notlar:github:token:device';
 const DRAFT_PREFIX = 'notlar:draft:v1:';
 
 const DEFAULT_SITE = {
@@ -57,6 +60,7 @@ function cacheDom() {
   dom.authRepo = $('#auth-repo');
   dom.authBranch = $('#auth-branch');
   dom.authToken = $('#auth-token');
+  dom.authRemember = $('#auth-remember');
   dom.authError = $('#auth-error');
   dom.authSubmit = $('#auth-submit');
 
@@ -73,6 +77,8 @@ function cacheDom() {
 
   dom.saveStatus = $('#save-status');
   dom.publishButton = $('#publish-button');
+  dom.offlineBanner = $('#offline-banner');
+  dom.offlineConnect = $('#offline-connect');
   dom.deleteButton = $('#delete-button');
   dom.dateInput = $('#date-input');
   dom.editorState = $('#editor-state');
@@ -114,11 +120,21 @@ function init() {
       if (response.ok) state.site = { ...DEFAULT_SITE, ...await response.json() };
     } catch { /* Writing a local draft also works offline. */ }
     state.github = null;
+    state.user = null;
+    state.posts = [];
+    state.current = null;
+    state.original = null;
+    state.dirty = false;
     showApp();
     applySiteBrand();
     renderSidebar();
     newPost();
-    dom.publishButton.textContent = 'Bağlan ve yayınla';
+  });
+
+  dom.offlineConnect?.addEventListener('click', () => {
+    flushDraft();
+    state.pendingPost = state.current?.id || 'new';
+    showAuth();
   });
   window.addEventListener('message', (event) => {
     if (event.origin === location.origin && event.source === dom.bookPreview.contentWindow &&
@@ -137,18 +153,95 @@ function init() {
    Yerel ayar & taslaklar
    -------------------------------------------------------------------------- */
 
-function readConfig() {
+function readJSON(key, storage = localStorage) {
   try {
-    const raw = localStorage.getItem(CONFIG_KEY);
+    const raw = storage.getItem(key);
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
   }
 }
 
-function writeConfig(config) {
+function readToken(key, storage) {
   try {
-    localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+    return storage.getItem(key) || '';
+  } catch {
+    return '';
+  }
+}
+
+function readConfig() {
+  const current = readJSON(CONFIG_KEY);
+  const legacy = readJSON(LEGACY_CONFIG_KEY);
+  const base = current || legacy;
+  if (!base || typeof base !== 'object') return null;
+
+  const sessionToken = readToken(SESSION_TOKEN_KEY, sessionStorage);
+  const deviceToken = readToken(DEVICE_TOKEN_KEY, localStorage);
+
+  // Older builds kept the key in localStorage indefinitely. Retire that copy
+  // instead of silently signing in with it; the user enters the key once more.
+  if (legacy && typeof legacy.token === 'string') {
+    try {
+      localStorage.removeItem(LEGACY_CONFIG_KEY);
+      if (!current) {
+        localStorage.setItem(CONFIG_KEY, JSON.stringify({
+          owner: String(legacy.owner || ''),
+          repo: String(legacy.repo || ''),
+          branch: String(legacy.branch || 'main'),
+          login: String(legacy.login || ''),
+          remember: false
+        }));
+      }
+    } catch {
+      /* sessiz */
+    }
+  }
+
+  return {
+    owner: String(base.owner || ''),
+    repo: String(base.repo || ''),
+    branch: String(base.branch || 'main'),
+    login: String(base.login || ''),
+    remember: Boolean(deviceToken),
+    token: sessionToken || deviceToken
+  };
+}
+
+function writeConfig(config) {
+  const token = String(config.token || '');
+  const remember = Boolean(config.remember);
+  const safe = {
+    owner: String(config.owner || ''),
+    repo: String(config.repo || ''),
+    branch: String(config.branch || 'main'),
+    login: String(config.login || ''),
+    remember
+  };
+
+  try {
+    localStorage.setItem(CONFIG_KEY, JSON.stringify(safe));
+    localStorage.removeItem(LEGACY_CONFIG_KEY);
+
+    if (remember && token) localStorage.setItem(DEVICE_TOKEN_KEY, token);
+    else localStorage.removeItem(DEVICE_TOKEN_KEY);
+
+    if (token) sessionStorage.setItem(SESSION_TOKEN_KEY, token);
+    else sessionStorage.removeItem(SESSION_TOKEN_KEY);
+  } catch {
+    /* sessiz */
+  }
+}
+
+function clearStoredToken() {
+  try {
+    sessionStorage.removeItem(SESSION_TOKEN_KEY);
+  } catch {
+    /* sessiz */
+  }
+
+  try {
+    localStorage.removeItem(DEVICE_TOKEN_KEY);
   } catch {
     /* sessiz */
   }
@@ -157,9 +250,12 @@ function writeConfig(config) {
 function clearConfig() {
   try {
     localStorage.removeItem(CONFIG_KEY);
+    localStorage.removeItem(LEGACY_CONFIG_KEY);
   } catch {
     /* sessiz */
   }
+
+  clearStoredToken();
 }
 
 function draftKey(id) {
@@ -234,6 +330,7 @@ function prefillAuth(config) {
   dom.authRepo.value = config?.repo || defaults.repo || '';
   dom.authBranch.value = config?.branch || 'main';
   dom.authToken.value = '';
+  if (dom.authRemember) dom.authRemember.checked = Boolean(config?.remember);
   hideAuthError();
 }
 
@@ -244,7 +341,8 @@ function bindAuth() {
       owner: dom.authOwner.value.trim(),
       repo: dom.authRepo.value.trim(),
       branch: dom.authBranch.value.trim() || 'main',
-      token: dom.authToken.value.trim()
+      token: dom.authToken.value.trim(),
+      remember: Boolean(dom.authRemember?.checked)
     };
 
     if (!config.owner || !config.repo || !config.token) {
@@ -294,10 +392,17 @@ async function connect(config, silent) {
       repo: config.repo,
       branch: config.branch,
       token: config.token,
-      login: user.login
+      login: user.login,
+      remember: Boolean(config.remember)
     };
 
-    state.config = nextConfig;
+    state.config = {
+      owner: nextConfig.owner,
+      repo: nextConfig.repo,
+      branch: nextConfig.branch,
+      login: nextConfig.login,
+      remember: nextConfig.remember
+    };
     state.github = github;
     state.user = user;
     state.posts = posts;
@@ -308,7 +413,6 @@ async function connect(config, silent) {
     applySiteBrand();
     renderSidebar();
 
-    dom.publishButton.textContent = 'Yayınla';
     if (state.pendingPost === 'new') {
       state.pendingPost = null;
       newPost();
@@ -327,8 +431,13 @@ async function connect(config, silent) {
   } catch (error) {
     console.error('[Studio] Bağlantı hatası:', error);
     setAuthBusy(false);
+
+    if (silent && error instanceof GitHubError && error.status === 401) {
+      writeConfig({ ...config, token: '', remember: false });
+    }
+
     showAuth();
-    prefillAuth({ ...config, token: '' });
+    prefillAuth({ ...config, token: '', remember: false });
     showAuthError(githubErrorMessage(error));
   }
 }
@@ -357,6 +466,7 @@ function parseSiteFile(file) {
 function showAuth() {
   dom.appView.hidden = true;
   dom.authView.hidden = false;
+  if (dom.offlineBanner) dom.offlineBanner.hidden = true;
   document.title = 'Studio — Notlar';
 }
 
@@ -364,6 +474,16 @@ function showApp() {
   dom.authView.hidden = true;
   dom.appView.hidden = false;
   document.title = `${state.site.title || 'Notlar'} — Studio`;
+  syncConnectionUI();
+}
+
+function syncConnectionUI() {
+  const offline = !state.github;
+
+  if (dom.offlineBanner) dom.offlineBanner.hidden = !offline;
+  if (dom.publishButton && !state.publishing) {
+    dom.publishButton.textContent = offline ? 'Bağlan ve yayınla' : 'Yayınla';
+  }
 }
 
 function applySiteBrand() {
@@ -413,7 +533,7 @@ function bindSidebar() {
     state.current = null;
     state.original = null;
     state.dirty = false;
-    prefillAuth({ ...lastConfig, token: '' });
+    prefillAuth({ ...lastConfig, token: '', remember: false });
     showAuth();
   });
 }
@@ -825,7 +945,7 @@ async function publishCurrent() {
     state.publishing = false;
     $('.studio-layout').inert = false;
     dom.publishButton.disabled = false;
-    dom.publishButton.textContent = 'Yayınla';
+    syncConnectionUI();
   }
 }
 
@@ -912,7 +1032,10 @@ async function deleteCurrent() {
    -------------------------------------------------------------------------- */
 
 function openSettings() {
-  if (!state.github) return;
+  if (!state.github) {
+    showToast('Site ayarları için GitHub anahtarıyla bağlan.');
+    return;
+  }
   dom.siteTitle.value = state.site.title || 'Notlar';
   dom.siteAuthor.value = state.site.author || '';
   dom.siteDescription.value = state.site.description || '';

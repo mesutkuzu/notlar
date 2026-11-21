@@ -20,9 +20,9 @@ Yazma alanı ana sayfadan linklenmez ve yalnızca GitHub erişim anahtarıyla a�
 
 `Contents` seçeneği görünmüyorsa klasik token da çalışır: Personal access tokens (classic) → Generate new token → `repo` kutusunu işaretle. Bu anahtar daha geniştir; iş bitince iptal edilebilir.
 
-Anahtar yalnızca tarayıcının `localStorage` alanında tutulur; repoya veya siteye yazılmaz. Ortak kullanılan bir cihazda oturum açma. Anahtar sızarsa GitHub üzerinden iptal et.
+Anahtar repoya veya siteye yazılmaz. Varsayılan olarak yalnızca studio sekmesi açık kaldığı sürece saklanır; “Bu cihazda hatırla” işaretlenirse tarayıcının `localStorage` alanında tutulur. Ortak kullanılan bir cihazda hatırlama seçeneğini kullanma. Anahtar sızarsa GitHub üzerinden iptal et.
 
-> Not: Statik bir sitede editör sayfasının varlığı gizlenemez; güvenlik sınırı erişim anahtarıdır. Anahtar olmadan hiçbir değişiklik yazılamaz.
+> Not: Statik bir sitede editör sayfasının varlığı gizlenemez; güvenlik sınırı erişim anahtarıdır. Anahtar olmadan hiçbir değişiklik yazılamaz. “Bağlanmadan yerel taslak yaz” yalnızca cihazda taslak oluşturur; depoya erişmez.
 
 ## Kullanım
 

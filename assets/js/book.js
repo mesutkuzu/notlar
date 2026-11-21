@@ -4,16 +4,18 @@
    ========================================================================== */
 
 import {
+  formatLong,
+  formatShort,
   normalizePosts,
   postTitle,
   escapeHTML,
   safeImageUrl,
   debounce,
   clamp
-} from './core.js?v=20261117m';
-import { loadPosts, loadSite } from './data.js?v=20261117m';
-import { renderMarkdown } from './markdown.js?v=20261117m';
-import { storyArt } from './story-art.js?v=20261117r';
+} from './core.js?v=20261121b';
+import { loadPosts, loadSite } from './data.js?v=20261121b';
+import { renderMarkdown } from './markdown.js?v=20261121b';
+import { storyArt } from './story-art.js?v=20261121b';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -25,6 +27,8 @@ const DEFAULT_SITE = {
 };
 
 const SIDE_TOLERANCE = 1;
+const COLOPHON_START = new Date(2003, 2, 21, 0, 0, 0);
+const artPreloads = [];
 
 const state = {
   posts: [],
@@ -81,6 +85,9 @@ function init() {
     initStudioPreview();
     return;
   }
+
+  preloadStoryArt();
+  startColophonTimer();
 
   const fontsReady = document.fonts?.ready ? document.fonts.ready : Promise.resolve();
   Promise.race([fontsReady, wait(3200)]).then(loadAndRender);
@@ -181,6 +188,94 @@ function setMeta(attribute, name, value) {
 }
 
 /* --------------------------------------------------------------------------
+   Görselleri önceden yükle & son sayfa sayacı
+   -------------------------------------------------------------------------- */
+
+// Book illustrations sit on offscreen leaves, so lazy loading makes them
+// appear only after the page is already turning. Start their download with
+// the page itself and keep a reference so the cache stays warm.
+function preloadStoryArt() {
+  const seen = new Set();
+
+  for (const list of Object.values(storyArt)) {
+    if (!Array.isArray(list)) continue;
+
+    for (const art of list) {
+      const src = art?.src;
+      if (!src || seen.has(src)) continue;
+      seen.add(src);
+
+      const image = new Image();
+      image.decoding = 'async';
+      image.loading = 'eager';
+      image.src = src;
+      artPreloads.push(image);
+    }
+  }
+}
+
+// Calendar-aware difference: 21 March 2003 -> today in full years, months,
+// days, hours, minutes and seconds.
+function elapsedSince(start, now = new Date()) {
+  if (now <= start) {
+    return { years: 0, months: 0, days: 0, hours: 0, minutes: 0, seconds: 0 };
+  }
+
+  let years = now.getFullYear() - start.getFullYear();
+  let months = now.getMonth() - start.getMonth();
+  let days = now.getDate() - start.getDate();
+  let hours = now.getHours() - start.getHours();
+  let minutes = now.getMinutes() - start.getMinutes();
+  let seconds = now.getSeconds() - start.getSeconds();
+
+  if (seconds < 0) {
+    seconds += 60;
+    minutes -= 1;
+  }
+
+  if (minutes < 0) {
+    minutes += 60;
+    hours -= 1;
+  }
+
+  if (hours < 0) {
+    hours += 24;
+    days -= 1;
+  }
+
+  if (days < 0) {
+    days += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+    months -= 1;
+  }
+
+  if (months < 0) {
+    months += 12;
+    years -= 1;
+  }
+
+  return { years, months, days, hours, minutes, seconds };
+}
+
+function updateColophonTimers() {
+  const timers = document.querySelectorAll('.colophon-timer');
+  if (!timers.length) return;
+
+  const elapsed = elapsedSince(COLOPHON_START);
+
+  for (const timer of timers) {
+    for (const [unit, value] of Object.entries(elapsed)) {
+      const node = timer.querySelector(`[data-unit="${unit}"]`);
+      if (node) node.textContent = String(value).padStart(2, '0');
+    }
+  }
+}
+
+function startColophonTimer() {
+  updateColophonTimers();
+  window.setInterval(updateColophonTimers, 1000);
+}
+
+/* --------------------------------------------------------------------------
    Ölçü & sayfa üretimi
    -------------------------------------------------------------------------- */
 
@@ -271,6 +366,7 @@ function layoutAndRender(initial = false) {
   renderBook();
   syncLeaves();
   updateUI();
+  updateColophonTimers();
 
   if (!initial || dom.area.hidden) reveal();
 }
@@ -451,7 +547,10 @@ function tocHTML(entries) {
       (entry, index) => `
         <button class="toc-entry" type="button" data-goto="${entry.index}">
           <span class="toc-index">${String(index + 1).padStart(2, '0')}</span>
-          <span class="toc-title">${escapeHTML(postTitle(entry.post))}</span>
+          <span class="toc-title">
+            <span class="toc-title-text">${escapeHTML(postTitle(entry.post))}</span>
+            <span class="toc-date">${escapeHTML(formatShort(entry.post.date))}</span>
+          </span>
           <span class="toc-dots" aria-hidden="true"></span>
           <span class="toc-page">${entry.index + 1}</span>
         </button>`
@@ -478,8 +577,22 @@ function colophonHTML() {
   const title = state.site.title || DEFAULT_SITE.title;
 
   return `
-    <p class="colophon-book">${escapeHTML(title)}</p>
-    <p class="colophon-final">Sadece 70 yıl!</p>
+    <div class="colophon-content">
+      <p class="colophon-book">${escapeHTML(title)}</p>
+      <p class="colophon-final">Sadece 70 yıl!</p>
+      <section class="colophon-timer" role="timer" aria-live="off" aria-label="Yeryüzünde geçen zaman">
+        <p class="colophon-timer-title">Yeryüzünde geçen zaman</p>
+        <div class="colophon-timer-grid">
+          <span class="timer-unit"><strong data-unit="years">00</strong><small>yıl</small></span>
+          <span class="timer-unit"><strong data-unit="months">00</strong><small>ay</small></span>
+          <span class="timer-unit"><strong data-unit="days">00</strong><small>gün</small></span>
+          <span class="timer-unit"><strong data-unit="hours">00</strong><small>saat</small></span>
+          <span class="timer-unit"><strong data-unit="minutes">00</strong><small>dakika</small></span>
+          <span class="timer-unit"><strong data-unit="seconds">00</strong><small>saniye</small></span>
+        </div>
+        <p class="colophon-timer-since">21 Mart 2003’ten bu yana</p>
+      </section>
+    </div>
   `;
 }
 
@@ -630,7 +743,7 @@ function placeStoryArt(post, pages, measure) {
     img.alt = illustration.alt;
     img.width = 1536;
     img.height = 1024;
-    img.loading = 'lazy';
+    img.loading = 'eager';
     img.decoding = 'async';
     img.addEventListener('error', () => figure.remove(), { once: true });
     figure.append(img);
@@ -653,12 +766,13 @@ function createStoryPage(post, chapterIndex, isOpener) {
   node.className = `book-page page--story${isOpener ? ' page--chapter' : ''}`;
   node.dataset.kind = isOpener ? 'chapter' : 'content';
 
-  const running = escapeHTML(postTitle(post));
+  const runningTitle = escapeHTML(postTitle(post));
+  const runningDate = escapeHTML(formatShort(post.date));
   const opener = isOpener ? storyOpenerHTML(post, chapterIndex) : '';
 
   node.innerHTML = `
     <div class="page-inner">
-      ${opener || `<div class="page-head"><span>${running}</span></div>`}
+      ${opener || `<div class="page-head"><span class="page-head-title">${runningTitle}</span><span class="page-head-date">${runningDate}</span></div>`}
       <div class="page-flow"><div class="book-prose"></div></div>
       <div class="page-folio"></div>
     </div>
@@ -675,6 +789,7 @@ function createStoryPage(post, chapterIndex, isOpener) {
 
 function storyOpenerHTML(post, chapterIndex) {
   const title = escapeHTML(postTitle(post));
+  const date = escapeHTML(formatLong(post.date));
   const cover = safeImageUrl(post.cover);
   const figure = cover
     ? `<figure class="chapter-cover"><img src="${escapeHTML(cover)}" alt="" loading="lazy" decoding="async"></figure>`
@@ -683,6 +798,7 @@ function storyOpenerHTML(post, chapterIndex) {
   return `
     <header class="page-opener">
       ${figure}
+      <p class="chapter-no">${date}</p>
       <h2 class="chapter-title">${title}</h2>
       <span class="chapter-rule" aria-hidden="true"></span>
     </header>
@@ -935,12 +1051,14 @@ function renderSingleBase() {
   }
 
   updateActivePages();
+  updateColophonTimers();
 }
 
 function showSingleBase(node) {
   if (!node) return;
   preparePage(node, 'right');
   dom.singleBase.replaceChildren(node);
+  updateColophonTimers();
 }
 
 function showSingleFlip(node, progress) {

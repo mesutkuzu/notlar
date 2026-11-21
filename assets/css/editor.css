@@ -233,6 +233,32 @@
   line-height: 1.55;
 }
 
+.auth-remember {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+
+.auth-remember input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.auth-remember-note {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 10.5px;
+  line-height: 1.5;
+}
+
 .auth-form .btn {
   margin-top: 18px;
 }
@@ -363,6 +389,32 @@
 
 .topbar-link:hover {
   color: var(--accent);
+}
+
+.offline-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex: none;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--accent-soft) 72%, var(--surface));
+  color: var(--text-2);
+  font-size: 11.5px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.offline-banner strong {
+  color: var(--text);
+}
+
+.offline-banner .text-button {
+  flex: none;
+  color: var(--accent-dark);
+  font-size: 11.5px;
+  font-weight: 700;
 }
 
 .sidebar-toggle,
@@ -1019,6 +1071,13 @@
 
   .studio-topbar {
     height: 58px;
+  }
+
+  .offline-banner {
+    flex-direction: column;
+    gap: 3px;
+    padding: 7px 12px;
+    font-size: 10.5px;
   }
 
   .studio-tag {

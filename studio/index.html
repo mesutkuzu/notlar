@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.github.com; frame-src 'self'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.github.com; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
   <title>Studio — Notlar</title>
   <meta name="description" content="Yazma masası.">
   <meta name="robots" content="noindex,nofollow,noarchive">
@@ -17,8 +17,8 @@
 
   <link rel="stylesheet" href="../assets/css/base.css?v=20261117m">
   <link rel="stylesheet" href="../assets/css/prose.css?v=20261117m">
-  <link rel="stylesheet" href="../assets/css/editor.css?v=20261117m">
-  <script type="module" src="../assets/js/editor.js?v=20261117p"></script>
+  <link rel="stylesheet" href="../assets/css/editor.css?v=20261121b">
+  <script type="module" src="../assets/js/editor.js?v=20261121b"></script>
 </head>
 <body class="studio-body" id="top">
 
@@ -63,8 +63,14 @@
 
           <div class="field">
             <label for="auth-token">Erişim anahtarı</label>
-            <input id="auth-token" name="token" type="password" autocomplete="off" placeholder="github_pat_…" required>
+            <input id="auth-token" name="token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" required>
           </div>
+
+          <label class="auth-remember" for="auth-remember">
+            <input id="auth-remember" type="checkbox">
+            <span>Bu cihazda hatırla</span>
+          </label>
+          <p class="auth-remember-note">Kapalıysa anahtar yalnızca bu sekme açık kaldığı sürece saklanır.</p>
 
           <p class="auth-error" id="auth-error" role="alert" hidden></p>
 
@@ -89,8 +95,8 @@
           </a>
         </details>
 
-        <button class="text-button" id="write-offline" type="button">Bağlanmadan taslak yaz</button>
-        <p class="auth-note">Anahtar yalnızca bu cihazın tarayıcısında saklanır; depoya yazılmaz.</p>
+        <button class="text-button" id="write-offline" type="button">Bağlanmadan yerel taslak yaz</button>
+        <p class="auth-note">Yerel taslaklar yalnızca bu cihazda kalır; yayınlamak için GitHub anahtarı gerekir. Anahtar depoya yazılmaz.</p>
         <a class="auth-back" href="../">← Siteye dön</a>
       </div>
     </main>
@@ -114,6 +120,11 @@
         <button class="btn btn--accent btn--small" type="button" id="publish-button">Yayınla</button>
       </div>
     </header>
+
+    <div class="offline-banner" id="offline-banner" role="status" hidden>
+      <span><strong>Yerel mod.</strong> Taslaklar bu cihazda kalır; yayınlamak için GitHub anahtarı gerekir.</span>
+      <button class="text-button" id="offline-connect" type="button">Bağlan</button>
+    </div>
 
     <div class="studio-layout">
       <div class="sidebar-scrim" id="sidebar-scrim" hidden></div>
