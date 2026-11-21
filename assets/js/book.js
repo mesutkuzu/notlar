@@ -616,10 +616,73 @@ function coverHTML() {
    -------------------------------------------------------------------------- */
 
 function buildStoryPages(post, chapterIndex, measure) {
+  const art = storyArt[post.id] || [];
+  const reserves = new Map();
+
+  let pages = paginateStory(post, chapterIndex, measure, reserves);
+
+  if (!art.length) {
+    measure.replaceChildren();
+    return pages;
+  }
+
+  const placed = placeStoryArt(post, pages, measure, reserves);
+
+  if (placed.size < art.length) {
+    // If even one illustration cannot fit in the leftover space, reserve a
+    // real slot for every illustration and paginate again. This keeps all
+    // images present on both spread and single-page layouts.
+    for (let index = 0; index < art.length; index += 1) {
+      const pageIndex = chooseArtReservePage(pages, art[index], reserves);
+      if (pageIndex < 0) continue;
+
+      reserves.set(pageIndex, {
+        artIndex: index,
+        height: artReserveHeight(),
+        position: art[index].position === 'top' ? 'top' : 'bottom'
+      });
+    }
+
+    if (reserves.size) {
+      pages = paginateStory(post, chapterIndex, measure, reserves);
+      placeStoryArt(post, pages, measure, reserves);
+    }
+  }
+
+  measure.replaceChildren();
+  return pages;
+}
+
+function artReserveHeight() {
+  return Math.round(clamp(state.layout.pageH * 0.26, 110, 180));
+}
+
+function chooseArtReservePage(pages, illustration, reserves) {
+  if (!pages.length) return -1;
+
+  let anchor = pages.findIndex((page) => {
+    const prose = page.node.querySelector('.book-prose');
+    return prose?.textContent.replace(/\s+/g, ' ').includes(illustration.anchor);
+  });
+
+  if (anchor < 0) anchor = pages.length - 1;
+
+  const candidates = [];
+  for (let distance = 0; distance < pages.length; distance += 1) {
+    const after = anchor + distance;
+    const before = anchor - distance;
+    if (after < pages.length) candidates.push(after);
+    if (distance > 0 && before >= 0) candidates.push(before);
+  }
+
+  return candidates.find((index) => !reserves.has(index)) ?? -1;
+}
+
+function paginateStory(post, chapterIndex, measure, reserves = new Map()) {
   const blocks = htmlToBlocks(renderMarkdown(post.content));
   const pages = [];
   let pageIndex = 0;
-  let current = createStoryPage(post, chapterIndex, true);
+  let current = createStoryPage(post, chapterIndex, true, reserves.get(0));
   let prose = current.node.querySelector('.book-prose');
   let hasContent = false;
   let needsDropcap = true;
@@ -629,7 +692,7 @@ function buildStoryPages(post, chapterIndex, measure) {
   const finish = () => {
     pages.push(current);
     pageIndex += 1;
-    current = createStoryPage(post, chapterIndex, false);
+    current = createStoryPage(post, chapterIndex, false, reserves.get(pageIndex));
     prose = current.node.querySelector('.book-prose');
     measure.replaceChildren(current.node);
     hasContent = false;
@@ -688,18 +751,51 @@ function buildStoryPages(post, chapterIndex, measure) {
     pages.push(current);
   }
 
-  placeStoryArt(post, pages, measure);
-  measure.replaceChildren();
   return pages;
 }
 
-// Illustrations use remaining space after text pagination, without adding pages.
-function placeStoryArt(post, pages, measure) {
+function makeStoryArtFigure(illustration, height) {
+  const figure = document.createElement('figure');
+  figure.className = `page-illustration page-illustration--${illustration.position}`;
+  figure.style.setProperty('--art-height', `${height}px`);
+
+  const img = document.createElement('img');
+  img.src = illustration.src;
+  img.alt = illustration.alt;
+  img.width = 1536;
+  img.height = 1024;
+  img.loading = 'eager';
+  img.decoding = 'async';
+  img.addEventListener('error', () => figure.remove(), { once: true });
+  figure.append(img);
+
+  return figure;
+}
+
+function placeStoryArt(post, pages, measure, reserves = new Map()) {
   const art = storyArt[post.id];
-  if (!art?.length) return;
+  if (!art?.length) return new Set();
 
   const gap = 18;
   const minimum = Math.min(120, state.layout.pageH * 0.18);
+  const placed = new Set();
+  const used = new Set();
+
+  // Reserved pages always keep their illustration, even when the text is full.
+  for (const [pageIndex, reserve] of reserves) {
+    const page = pages[pageIndex];
+    const illustration = art[reserve.artIndex];
+    if (!page || !illustration) continue;
+
+    const slot = page.node.querySelector(`.page-art-slot[data-art-index="${reserve.artIndex}"]`);
+    if (!slot) continue;
+
+    const height = Math.max(24, reserve.height - gap);
+    slot.replaceWith(makeStoryArtFigure(illustration, height));
+    placed.add(reserve.artIndex);
+    used.add(pageIndex);
+  }
+
   const slots = pages.map((page, index) => {
     measure.replaceChildren(page.node);
     const flow = page.node.querySelector('.page-flow');
@@ -712,14 +808,15 @@ function placeStoryArt(post, pages, measure) {
       text: prose.textContent.replace(/\s+/g, ' ')
     };
   });
-  const used = new Set();
   let lastIndex = -1;
 
-  for (const illustration of art) {
-    const anchor = slots.findIndex(slot => slot.text.includes(illustration.anchor));
+  for (let artIndex = 0; artIndex < art.length; artIndex += 1) {
+    if (placed.has(artIndex)) continue;
+    const illustration = art[artIndex];
+    const anchor = slots.findIndex((slot) => slot.text.includes(illustration.anchor));
     if (anchor < 0) continue;
 
-    const candidates = slots.filter(slot =>
+    const candidates = slots.filter((slot) =>
       !used.has(slot.index) && slot.index > lastIndex &&
       slot.free >= minimum + gap + 4 && Math.abs(slot.index - anchor) <= 2
     );
@@ -732,21 +829,10 @@ function placeStoryArt(post, pages, measure) {
     if (!slot) continue;
 
     measure.replaceChildren(slot.page.node);
-    const figure = document.createElement('figure');
-    figure.className = `page-illustration page-illustration--${illustration.position}`;
     const height = Math.floor(Math.min(
       state.layout.pageH * 0.35, slot.width * 0.72, slot.free - gap - 4
     ));
-    figure.style.setProperty('--art-height', `${height}px`);
-    const img = document.createElement('img');
-    img.src = illustration.src;
-    img.alt = illustration.alt;
-    img.width = 1536;
-    img.height = 1024;
-    img.loading = 'eager';
-    img.decoding = 'async';
-    img.addEventListener('error', () => figure.remove(), { once: true });
-    figure.append(img);
+    const figure = makeStoryArtFigure(illustration, height);
 
     const flow = slot.page.node.querySelector('.page-flow');
     if (illustration.position === 'top') flow.before(figure);
@@ -756,12 +842,15 @@ function placeStoryArt(post, pages, measure) {
       figure.remove();
       continue;
     }
+    placed.add(artIndex);
     used.add(slot.index);
     lastIndex = slot.index;
   }
+
+  return placed;
 }
 
-function createStoryPage(post, chapterIndex, isOpener) {
+function createStoryPage(post, chapterIndex, isOpener, reserve = null) {
   const node = document.createElement('div');
   node.className = `book-page page--story${isOpener ? ' page--chapter' : ''}`;
   node.dataset.kind = isOpener ? 'chapter' : 'content';
@@ -769,11 +858,18 @@ function createStoryPage(post, chapterIndex, isOpener) {
   const runningTitle = escapeHTML(postTitle(post));
   const runningDate = escapeHTML(formatShort(post.date));
   const opener = isOpener ? storyOpenerHTML(post, chapterIndex) : '';
+  const slot = reserve
+    ? `<div class="page-art-slot" data-art-index="${reserve.artIndex}" style="--art-reserve:${reserve.height}px"></div>`
+    : '';
+  const slotTop = reserve?.position === 'top' ? slot : '';
+  const slotBottom = reserve?.position === 'top' ? '' : slot;
 
   node.innerHTML = `
     <div class="page-inner">
       ${opener || `<div class="page-head"><span class="page-head-title">${runningTitle}</span><span class="page-head-date">${runningDate}</span></div>`}
+      ${slotTop}
       <div class="page-flow"><div class="book-prose"></div></div>
+      ${slotBottom}
       <div class="page-folio"></div>
     </div>
   `;

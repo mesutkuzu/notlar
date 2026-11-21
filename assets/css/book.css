@@ -617,6 +617,13 @@
 
 /* Book spot illustrations ------------------------------------------------- */
 
+.page-art-slot {
+  flex: none;
+  width: 100%;
+  height: var(--art-reserve);
+  min-height: 0;
+}
+
 .page-illustration {
   display: flex;
   align-items: center;
