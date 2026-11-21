@@ -1593,14 +1593,6 @@
   text-transform: uppercase;
 }
 
-.colophon-timer-since {
-  margin-top: 12px;
-  color: var(--ink-faint);
-  font-family: var(--sans);
-  font-size: clamp(6.5px, calc(var(--page-w) * 0.013), 8px);
-  letter-spacing: 0.08em;
-}
-
 .colophon-title {
   margin-top: 18px;
   color: var(--ink);

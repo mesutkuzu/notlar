@@ -590,7 +590,6 @@ function colophonHTML() {
           <span class="timer-unit"><strong data-unit="minutes">00</strong><small>dakika</small></span>
           <span class="timer-unit"><strong data-unit="seconds">00</strong><small>saniye</small></span>
         </div>
-        <p class="colophon-timer-since">21 Mart 2003’ten bu yana</p>
       </section>
     </div>
   `;
