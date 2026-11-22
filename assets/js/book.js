@@ -12,10 +12,10 @@ import {
   safeImageUrl,
   debounce,
   clamp
-} from './core.js?v=20261121b';
-import { loadPosts, loadSite } from './data.js?v=20261121b';
-import { renderMarkdown } from './markdown.js?v=20261121b';
-import { storyArt } from './story-art.js?v=20261121f';
+} from './core.js?v=20261122a';
+import { loadPosts, loadSite } from './data.js?v=20261122a';
+import { renderMarkdown } from './markdown.js?v=20261122a';
+import { storyArt } from './story-art.js?v=20261122a';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -857,6 +857,7 @@ function createStoryPage(post, chapterIndex, isOpener, reserve = null) {
 
   const runningTitle = escapeHTML(postTitle(post));
   const runningDate = escapeHTML(formatShort(post.date));
+  const fiction = post.disclaimer ? '<span class="page-head-fiction">Kurgu</span>' : '';
   const opener = isOpener ? storyOpenerHTML(post, chapterIndex) : '';
   const slot = reserve
     ? `<div class="page-art-slot" data-art-index="${reserve.artIndex}" style="--art-reserve:${reserve.height}px"></div>`
@@ -866,7 +867,7 @@ function createStoryPage(post, chapterIndex, isOpener, reserve = null) {
 
   node.innerHTML = `
     <div class="page-inner">
-      ${opener || `<div class="page-head"><span class="page-head-title">${runningTitle}</span><span class="page-head-date">${runningDate}</span></div>`}
+      ${opener || `<div class="page-head"><span class="page-head-title">${runningTitle}</span><span class="page-head-date">${runningDate}</span>${fiction}</div>`}
       ${slotTop}
       <div class="page-flow"><div class="book-prose"></div></div>
       ${slotBottom}
@@ -890,10 +891,14 @@ function storyOpenerHTML(post, chapterIndex) {
   const figure = cover
     ? `<figure class="chapter-cover"><img src="${escapeHTML(cover)}" alt="" loading="lazy" decoding="async"></figure>`
     : '';
+  const disclaimer = post.disclaimer
+    ? `<p class="chapter-disclaimer">${escapeHTML(post.disclaimer)}</p>`
+    : '';
 
   return `
     <header class="page-opener">
       ${figure}
+      ${disclaimer}
       <p class="chapter-no">${date}</p>
       <h2 class="chapter-title">${title}</h2>
       <span class="chapter-rule" aria-hidden="true"></span>

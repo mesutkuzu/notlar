@@ -8,9 +8,9 @@ import {
   postTitle,
   plainText,
   safeImageUrl
-} from './core.js?v=20261121b';
-import { loadPosts, loadSite } from './data.js?v=20261121b';
-import { renderMarkdown } from './markdown.js?v=20261121b';
+} from './core.js?v=20261122a';
+import { loadPosts, loadSite } from './data.js?v=20261122a';
+import { renderMarkdown } from './markdown.js?v=20261122a';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 
@@ -30,6 +30,7 @@ const dom = {};
 function cacheDom() {
   dom.article = $('#post');
   dom.date = $('#post-date');
+  dom.disclaimer = $('#post-disclaimer');
   dom.title = $('#post-title');
   dom.content = $('#post-content');
   dom.status = $('#post-status');
@@ -144,6 +145,13 @@ function renderPost(post) {
   const description = plainText(post.content).slice(0, 160);
 
   dom.date.textContent = formatLong(post.date);
+
+  const disclaimer = String(post.disclaimer || '').trim();
+  if (dom.disclaimer) {
+    dom.disclaimer.textContent = disclaimer;
+    dom.disclaimer.hidden = !disclaimer;
+  }
+
   if (dom.bookLink) {
     dom.bookLink.href = `./?yazi=${encodeURIComponent(post.id)}`;
   }

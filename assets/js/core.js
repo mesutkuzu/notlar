@@ -277,6 +277,7 @@ export function normalizePosts(raw) {
       title,
       content: String(item.content || ''),
       cover: String(item.cover || '').trim(),
+      disclaimer: String(item.disclaimer || '').trim(),
       createdAt: item.createdAt || `${item.date}T00:00:00.000Z`,
       updatedAt: item.updatedAt || item.createdAt || `${item.date}T00:00:00.000Z`
     };

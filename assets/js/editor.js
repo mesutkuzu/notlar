@@ -15,8 +15,8 @@ import {
   escapeHTML,
   normalize,
   safeImageUrl
-} from './core.js?v=20261121b';
-import { GitHub, GitHubError, githubErrorMessage } from './github.js?v=20261121b';
+} from './core.js?v=20261122a';
+import { GitHub, GitHubError, githubErrorMessage } from './github.js?v=20261122a';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -281,6 +281,7 @@ function saveDraft() {
     date: dom.dateInput.value || state.current.date || todayISO(),
     title: dom.titleInput.value,
     cover: dom.coverInput.value.trim(),
+    disclaimer: state.current.disclaimer || '',
     content: dom.contentInput.value,
     createdAt: state.current.createdAt || null,
     updatedAt: state.current.updatedAt || null
@@ -706,6 +707,7 @@ function selectPost(id) {
       String(draft.post.title || '') !== String(post.title || '') ||
       String(draft.post.content || '') !== String(post.content || '') ||
       String(draft.post.cover || '') !== String(post.cover || '') ||
+      String(draft.post.disclaimer || '') !== String(post.disclaimer || '') ||
       String(draft.post.date || '') !== String(post.date || '');
 
     if (differs) {
@@ -714,6 +716,7 @@ function selectPost(id) {
         date: isValidISO(draft.post.date) ? draft.post.date : post.date,
         title: String(draft.post.title || ''),
         cover: String(draft.post.cover || ''),
+        disclaimer: String(draft.post.disclaimer || post.disclaimer || ''),
         content: String(draft.post.content || '')
       };
       restored = true;
@@ -751,6 +754,7 @@ function newPost() {
     date: todayISO(),
     title: '',
     cover: '',
+    disclaimer: '',
     content: '',
     createdAt: null,
     updatedAt: null
@@ -768,6 +772,7 @@ function newPost() {
         date: isValidISO(draft.post.date) ? draft.post.date : base.date,
         title: String(draft.post.title || ''),
         cover: String(draft.post.cover || ''),
+        disclaimer: String(draft.post.disclaimer || ''),
         content: String(draft.post.content || '')
       }
     : base;
@@ -905,6 +910,7 @@ async function publishCurrent() {
     date: isValidISO(dom.dateInput.value) ? dom.dateInput.value : todayISO(),
     title: dom.titleInput.value.trim(),
     cover: dom.coverInput.value.trim(),
+    disclaimer: state.current?.disclaimer || '',
     content: dom.contentInput.value,
     createdAt: state.current?.createdAt || now,
     updatedAt: now

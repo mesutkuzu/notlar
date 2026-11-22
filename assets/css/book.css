@@ -585,6 +585,17 @@
   opacity: 0.78;
 }
 
+.page-head-fiction {
+  flex: none;
+  padding: 0 4px;
+  border: 1px solid rgba(178, 107, 72, 0.4);
+  border-radius: 2px;
+  color: var(--copper);
+  font-size: 0.85em;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+}
+
 .page-flow {
   position: relative;
   flex: 1;
@@ -858,6 +869,19 @@
 
 .chapter-cover.is-missing {
   display: none;
+}
+
+.chapter-disclaimer {
+  max-width: 34ch;
+  margin-bottom: 14px;
+  padding-left: 10px;
+  border-left: 1px solid rgba(178, 107, 72, 0.5);
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: clamp(6.5px, calc(var(--page-w) * 0.0135), 8px);
+  font-style: italic;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
 }
 
 .chapter-no {

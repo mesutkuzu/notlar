@@ -195,6 +195,18 @@
   filter: sepia(0.1) saturate(0.88) contrast(0.98);
 }
 
+.post-disclaimer {
+  max-width: 58ch;
+  margin-top: 22px;
+  padding: 10px 14px;
+  border-left: 2px solid var(--accent);
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
 .post-pill {
   margin-top: 24px;
   color: var(--muted);
