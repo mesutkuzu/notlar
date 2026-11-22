@@ -105,6 +105,7 @@ function initStudioPreview() {
     if (current !== revision) return;
     state.site = { ...DEFAULT_SITE, ...event.data.site };
     state.posts = normalizePosts([event.data.post]);
+    state.loaded = true;
     state.pages = [];
     state.coverNode = null;
     state.backCoverNode = null;
@@ -336,7 +337,7 @@ function layoutAndRender(initial = false) {
     layout.single === state.layout.single &&
     state.pages.length > 0;
 
-  if (same) return;
+  if (same && !initial) return;
 
   const anchor = state.pages.length ? pageAnchor() : null;
 
@@ -2198,7 +2199,7 @@ function bindEvents() {
   });
 
   const relayout = debounce(() => {
-    if (state.animating || state.pointer) return;
+    if (!state.loaded || state.animating || state.pointer) return;
     layoutAndRender();
   }, 240);
 
