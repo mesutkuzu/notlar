@@ -1301,6 +1301,41 @@
   text-wrap: balance;
 }
 
+.cover-swipe {
+  position: absolute;
+  right: 12%;
+  bottom: calc(var(--page-h) * 0.09);
+  left: 12%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.cover-swipe-icon {
+  width: 58px;
+  height: 26px;
+  overflow: visible;
+  color: var(--gold);
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cover-swipe-trail {
+  opacity: 0.5;
+}
+
+.cover-swipe-hand {
+  animation: cover-swipe-left 3.2s ease-in-out infinite;
+  animation-play-state: paused;
+}
+
+.book-area.is-closed .cover-swipe-hand {
+  animation-play-state: running;
+}
+
 .book-page.page--backcover {
   background-color: var(--cover-deep);
   background-image: radial-gradient(ellipse at 40% 30%, rgba(255, 246, 224, 0.035), transparent 60%);
@@ -2187,6 +2222,13 @@
   50% { transform: translateX(-4px); opacity: 1; }
 }
 
+@keyframes cover-swipe-left {
+  0%, 15% { transform: translateX(5px); opacity: 0; }
+  25% { transform: translateX(5px); opacity: 1; }
+  65% { transform: translateX(-15px); opacity: 1; }
+  80%, 100% { transform: translateX(-15px); opacity: 0; }
+}
+
 /* Duyarlı ---------------------------------------------------------------- */
 
 @media (max-width: 900px) {
@@ -2310,6 +2352,10 @@
   .loader-text,
   .drag-hint-icon,
   .title-hint span {
+    animation: none !important;
+  }
+
+  .cover-swipe-hand {
     animation: none !important;
   }
 }

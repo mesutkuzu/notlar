@@ -15,7 +15,7 @@ import {
 } from './core.js?v=20261122a';
 import { loadPosts, loadSite } from './data.js?v=20261122a';
 import { renderMarkdown } from './markdown.js?v=20261122a';
-import { storyArt } from './story-art.js?v=20261122a';
+import { storyArt } from './story-art.js?v=20261124a';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -609,6 +609,14 @@ function coverHTML() {
     ${titleMarkup(title, 'cover-title')}
     <span class="cover-rule" aria-hidden="true"></span>
     <p class="cover-sub">${description}</p>
+    <div class="cover-swipe" role="img" aria-label="Kitabı açmak için sola kaydır">
+      <svg class="cover-swipe-icon" viewBox="0 0 64 28" fill="none" aria-hidden="true">
+        <path class="cover-swipe-trail" d="M10 9h35M16 4l-6 5 6 5" />
+        <g class="cover-swipe-hand">
+          <path d="M37 24l-5-6a2 2 0 0 1 3-2l2 2V7a2 2 0 0 1 4 0v7l2-1 5 2a3 3 0 0 1 2 3l-1 6" />
+        </g>
+      </svg>
+    </div>
   `;
 }
 
