@@ -28,7 +28,7 @@ const DEVICE_TOKEN_KEY = 'notlar:github:token:device';
 const DRAFT_PREFIX = 'notlar:draft:v1:';
 
 const DEFAULT_SITE = {
-  title: 'Notlar',
+  title: 'Aklımın Ucundakiler',
   author: ''
 };
 
@@ -468,13 +468,13 @@ function showAuth() {
   dom.appView.hidden = true;
   dom.authView.hidden = false;
   if (dom.offlineBanner) dom.offlineBanner.hidden = true;
-  document.title = 'Studio — Notlar';
+  document.title = 'Studio — Aklımın Ucundakiler';
 }
 
 function showApp() {
   dom.authView.hidden = true;
   dom.appView.hidden = false;
-  document.title = `${state.site.title || 'Notlar'} — Studio`;
+  document.title = `${state.site.title || 'Aklımın Ucundakiler'} — Studio`;
   syncConnectionUI();
 }
 
@@ -488,7 +488,7 @@ function syncConnectionUI() {
 }
 
 function applySiteBrand() {
-  const title = state.site.title || 'Notlar';
+  const title = state.site.title || 'Aklımın Ucundakiler';
   const lower = title.toLocaleLowerCase('tr');
   for (const node of $$('.brand-text')) node.textContent = lower;
   if (!dom.appView.hidden) document.title = `${title} — Studio`;
@@ -1042,7 +1042,7 @@ function openSettings() {
     showToast('Site ayarları için GitHub anahtarıyla bağlan.');
     return;
   }
-  dom.siteTitle.value = state.site.title || 'Notlar';
+  dom.siteTitle.value = state.site.title || 'Aklımın Ucundakiler';
   dom.siteAuthor.value = state.site.author || '';
   dom.siteDescription.value = state.site.description || '';
   dom.connectionInfo.textContent = `@${state.config.login} · ${state.config.owner}/${state.config.repo} · ${state.config.branch}`;
@@ -1081,7 +1081,7 @@ function bindModals() {
 async function saveSettings() {
   if (!state.github) return;
 
-  const title = dom.siteTitle.value.trim() || 'Notlar';
+  const title = dom.siteTitle.value.trim() || 'Aklımın Ucundakiler';
   const author = dom.siteAuthor.value.trim();
   const description = dom.siteDescription.value.trim();
 

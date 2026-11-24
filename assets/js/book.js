@@ -15,13 +15,13 @@ import {
 } from './core.js?v=20261122a';
 import { loadPosts, loadSite } from './data.js?v=20261122a';
 import { renderMarkdown } from './markdown.js?v=20261122a';
-import { storyArt } from './story-art.js?v=20261124a';
+import { storyArt } from './story-art.js?v=20261124c';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
 const DEFAULT_SITE = {
-  title: 'Notlar',
+  title: 'Aklımın Ucundakiler',
   description: 'Sıkılınca yazarım..',
   author: ''
 };
@@ -502,7 +502,7 @@ function makeBackCover() {
 
 function titleLines(raw) {
   const title = String(raw || '').trim();
-  if (!title) return ['Kanca’nın Ucundakiler'];
+  if (!title) return ['Aklımın Ucundakiler'];
 
   const words = title.split(/\s+/);
   if (title.length > 16 && words.length > 1) {
@@ -600,7 +600,7 @@ function coverHTML() {
   const title = state.site.title || DEFAULT_SITE.title;
   const description = escapeHTML(state.site.description || DEFAULT_SITE.description);
 
-  const initials = (state.site.author || state.site.title || 'Notlar')
+  const initials = (state.site.author || state.site.title || 'Aklımın Ucundakiler')
     .split(/\s+/).filter(Boolean).slice(0, 2).map(word => word[0]).join('').toLocaleUpperCase('tr');
 
   return `
@@ -2065,14 +2065,14 @@ function updateUI() {
   if (!total) return;
 
   if (state.closed) {
-    const label = `${state.site.author || 'Notlar'} kitabı, kapalı. Açmak için kapağı çevir.`;
+    const label = `${state.site.author || 'Aklımın Ucundakiler'} kitabı, kapalı. Açmak için kapağı çevir.`;
     dom.book.setAttribute('aria-label', label);
     dom.single.setAttribute('aria-label', label);
     return;
   }
 
   if (state.mode === 'single') {
-    const label = `${state.site.author || 'Notlar'} kitabı, ${
+    const label = `${state.site.author || 'Aklımın Ucundakiler'} kitabı, ${
       state.currentPage + 1
     }. sayfa, ${total} sayfa`;
     dom.single.setAttribute('aria-label', label);
@@ -2085,8 +2085,8 @@ function updateUI() {
   const second = Math.min(first + 1, total - 1);
   const label =
     second > first
-      ? `${state.site.author || 'Notlar'} kitabı, ${first + 1}–${second + 1}. sayfalar, ${total} sayfa`
-      : `${state.site.author || 'Notlar'} kitabı, ${first + 1}. sayfa, ${total} sayfa`;
+      ? `${state.site.author || 'Aklımın Ucundakiler'} kitabı, ${first + 1}–${second + 1}. sayfalar, ${total} sayfa`
+      : `${state.site.author || 'Aklımın Ucundakiler'} kitabı, ${first + 1}. sayfa, ${total} sayfa`;
 
   dom.book.setAttribute('aria-label', label);
 

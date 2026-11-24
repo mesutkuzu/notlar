@@ -1,4 +1,18 @@
 export const storyArt = {
+  'acaba-simdi-ne-yapiyor': [
+    {
+      src: 'assets/img/acaba-simdi-ne-yapiyor/gece-gelen-isim.webp?v=20261124a',
+      alt: 'Başını yastığa koymuş, eski bir okul sırasını düşünürken uyanık kalan adam.',
+      anchor: 'Bazen gece yatarken yıllardır görmediğim',
+      position: 'bottom'
+    },
+    {
+      src: 'assets/img/acaba-simdi-ne-yapiyor/eski-bir-tanidik.webp?v=20261124a',
+      alt: 'Elindeki eski sınıf fotoğrafıyla telefonuna bakarken hafifçe gülümseyen adam.',
+      anchor: 'Eskiden âşık olduğum kızlara da bakıyorum.',
+      position: 'bottom'
+    }
+  ],
   'musait-bir-zamanda': [
     {
       src: 'assets/img/musait-bir-zamanda/kosusturma.webp?v=20261121',

@@ -17,7 +17,7 @@ const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
 const DEFAULT_SITE = {
-  title: 'Notlar',
+  title: 'Aklımın Ucundakiler',
   description: '',
   author: ''
 };

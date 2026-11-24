@@ -15,7 +15,7 @@ import { renderMarkdown } from './markdown.js?v=20261122a';
 const $ = (selector, root = document) => root.querySelector(selector);
 
 const DEFAULT_SITE = {
-  title: 'Notlar',
+  title: 'Aklımın Ucundakiler',
   description: '',
   author: ''
 };
@@ -136,6 +136,10 @@ async function loadPost() {
 function applySite() {
   const site = state.site;
   const title = site.title || DEFAULT_SITE.title;
+  const brand = $('.brand-text');
+  if (brand) brand.textContent = title.toLocaleLowerCase('tr');
+  const footer = $('.reader-footer span');
+  if (footer) footer.textContent = title;
   const authorMeta = $('meta[name="author"]');
   if (authorMeta) authorMeta.setAttribute('content', site.author || title);
 }
@@ -172,7 +176,7 @@ function renderPost(post) {
   dom.article.hidden = false;
   dom.status.hidden = true;
 
-  document.title = `${title} — ${state.site.title || 'Notlar'}`;
+  document.title = `${title} — ${state.site.title || 'Aklımın Ucundakiler'}`;
 
   const descriptionMeta = $('meta[name="description"]');
   if (descriptionMeta) descriptionMeta.setAttribute('content', description);
@@ -192,7 +196,7 @@ function showNotFound() {
   dom.article.hidden = true;
   dom.status.hidden = false;
   dom.status.innerHTML = '<p>Yazı bulunamadı. <a href="./">Tüm yazılara dön</a></p>';
-  document.title = `Yazı bulunamadı — ${state.site.title || 'Notlar'}`;
+  document.title = `Yazı bulunamadı — ${state.site.title || 'Aklımın Ucundakiler'}`;
 }
 
 function showError() {

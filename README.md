@@ -1,4 +1,4 @@
-# Kanca'nın Ucundakiler
+# Aklımın Ucundakiler
 
 Kişisel bir not defteri. Sade, sürükleyerek okunan 3B bir kitap; GitHub Pages üzerinde çalışır ve notlar `data/posts.json` içinde tutulur. Kapak kapalı açılır; sayfalar sürüklenerek çevrilir. Her not, kendi başlığı ve isteğe bağlı başlık görseliyle kitabın bir sayfası olur.
 
